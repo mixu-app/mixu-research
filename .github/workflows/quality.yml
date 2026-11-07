@@ -40,10 +40,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Fail on EPUB/TXT payloads
+      - name: Fail on book payloads
         run: |
           set -euo pipefail
-          hits=$(git ls-files | grep -Ei '\.(epub|mobi|azw3|txt|pdf)$' | grep -v '^corpora/manifest.json' || true)
+          # Binary book formats anywhere; .txt anywhere except licence and tool directories,
+          # because LICENSES/Apache-2.0.txt is not a novel.
+          binary=$(git ls-files | grep -Ei '\.(epub|mobi|azw3|pdf)$' || true)
+          text=$(git ls-files '*.txt' | grep -Ev '^(LICENSES/|tools/)' || true)
+          hits=$(printf '%s\n%s\n' "$binary" "$text" | sed '/^$/d')
           if [ -n "$hits" ]; then
             echo "Book payloads must never be committed:"; echo "$hits"; exit 1
           fi

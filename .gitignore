@@ -10,3 +10,4 @@ __pycache__/
 *.pyc
 .worktrees/
 .DS_Store
+.carryctx/config.local.toml
