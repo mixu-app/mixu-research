@@ -1,0 +1,12 @@
+# Fetched book files: never committed
+corpora/cache/
+
+# Experiment output
+experiments/*/out/
+experiments/*/cache/
+
+.venv/
+__pycache__/
+*.pyc
+.worktrees/
+.DS_Store

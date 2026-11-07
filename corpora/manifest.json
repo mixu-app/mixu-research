@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "note": "Metadata only. No book text is stored in this repository; the fetcher writes to corpora/cache/ which is ignored.",
+  "as_of": "2026-11-08",
+  "sources": {
+    "gutenberg": {
+      "url": "https://www.gutenberg.org/",
+      "basis": "US public domain; do not redistribute their files outside the terms of use"
+    },
+    "standard_ebooks": {
+      "url": "https://standardebooks.org/",
+      "basis": "US public domain, better typography"
+    },
+    "wikisource": {
+      "url": "https://wikisource.org/",
+      "basis": "varies per page; check each item"
+    },
+    "internet_archive": {
+      "url": "https://archive.org/",
+      "basis": "varies per item"
+    }
+  },
+  "works": [
+    {
+      "id": "poe-rue-morgue",
+      "author": "Edgar Allan Poe",
+      "death": 1849,
+      "title": "The Murders in the Rue Morgue",
+      "published": 1841,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2148,
+      "role": "founding detective story; closed-room reasoning"
+    },
+    {
+      "id": "poe-marie-roget",
+      "author": "Edgar Allan Poe",
+      "death": 1849,
+      "title": "The Mystery of Marie Roget",
+      "published": 1842,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2148,
+      "role": "first armchair detection from documents"
+    },
+    {
+      "id": "poe-purloined-letter",
+      "author": "Edgar Allan Poe",
+      "death": 1849,
+      "title": "The Purloined Letter",
+      "published": 1844,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2148,
+      "role": "hiding in plain sight; inference over search"
+    },
+    {
+      "id": "collins-moonstone",
+      "author": "Wilkie Collins",
+      "death": 1889,
+      "title": "The Moonstone",
+      "published": 1868,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 155,
+      "role": "first full-length English detective novel; multiple narrators"
+    },
+    {
+      "id": "collins-woman-in-white",
+      "author": "Wilkie Collins",
+      "death": 1889,
+      "title": "The Woman in White",
+      "published": 1859,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 583,
+      "role": "sensation novel; identity substitution"
+    },
+    {
+      "id": "gaboriau-lerouge",
+      "author": "Emile Gaboriau",
+      "death": 1873,
+      "title": "Monsieur Lecoq",
+      "published": 1869,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 3803,
+      "role": "police procedure; detective as official"
+    },
+    {
+      "id": "leroux-yellow-room",
+      "author": "Gaston Leroux",
+      "death": 1927,
+      "title": "The Mystery of the Yellow Room",
+      "published": 1907,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 1685,
+      "role": "canonical locked-room problem"
+    },
+    {
+      "id": "doyle-study-in-scarlet",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "A Study in Scarlet",
+      "published": 1887,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 244,
+      "role": "first Holmes novel; deduction demonstrated"
+    },
+    {
+      "id": "doyle-sign-of-four",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Sign of the Four",
+      "published": 1890,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2097,
+      "role": "chain of inference across chapters"
+    },
+    {
+      "id": "doyle-hound",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Hound of the Baskervilles",
+      "published": 1902,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2852,
+      "role": "atmosphere plus ratiocination; long build"
+    },
+    {
+      "id": "doyle-return",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Return of Sherlock Holmes",
+      "published": 1905,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 108,
+      "role": "short-story structure; recurring reveal pattern"
+    },
+    {
+      "id": "chesterton-innocence",
+      "author": "G.K. Chesterton",
+      "death": 1936,
+      "title": "The Innocence of Father Brown",
+      "published": 1911,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 204,
+      "role": "inverted detection; moral reasoning"
+    },
+    {
+      "id": "christie-styles",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Mysterious Affair at Styles",
+      "published": 1920,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 863,
+      "role": "Poirot debut; clue-fair-play baseline"
+    },
+    {
+      "id": "christie-ackroyd",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Murder of Roger Ackroyd",
+      "published": 1926,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 0,
+      "role": "narration trick; the hard case for spoiler logic"
+    },
+    {
+      "id": "christie-links",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Murder on the Links",
+      "published": 1923,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 0,
+      "role": "false solution then correction"
+    },
+    {
+      "id": "sayers-whose-body",
+      "author": "Dorothy L. Sayers",
+      "death": 1957,
+      "title": "Whose Body?",
+      "published": 1923,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 0,
+      "role": "Wimsey debut; documentary evidence"
+    },
+    {
+      "id": "leblanc-lupin",
+      "author": "Maurice Leblanc",
+      "death": 1941,
+      "title": "Arsene Lupin, Gentleman-Burglar",
+      "published": 1907,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 4013,
+      "role": "thief as protagonist; identity play"
+    },
+    {
+      "id": "freeman-red-thumb",
+      "author": "R. Austin Freeman",
+      "death": 1943,
+      "title": "The Red Thumb Mark",
+      "published": 1907,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 0,
+      "role": "inverted scientific detection"
+    },
+    {
+      "id": "green-leavenworth",
+      "author": "Anna Katharine Green",
+      "death": 1935,
+      "title": "The Leavenworth Case",
+      "published": 1878,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 4047,
+      "role": "early American detective novel; courtroom logic"
+    },
+    {
+      "id": "hume-hansom-cab",
+      "author": "Fergus Hume",
+      "death": 1932,
+      "title": "The Mystery of a Hansom Cab",
+      "published": 1886,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2625,
+      "role": "best-selling mystery; urban detail"
+    }
+  ]
+}

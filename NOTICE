@@ -1,0 +1,10 @@
+Mixu Research
+Copyright 2026 Xuepoo and Mixu contributors
+
+Code and scripts: Apache-2.0 (see LICENSE).
+Prose and paper notes: CC-BY-4.0.
+Corpus metadata: CC0-1.0.
+
+This repository does not distribute book texts. Public-domain works are referenced by
+identifier and fetched on demand into an ignored directory. Copyright status is computed
+per jurisdiction by tools/check_corpus.py; the computation, not the note, is authoritative.

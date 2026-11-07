@@ -1,0 +1,50 @@
+name: Quality gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown:
+    name: Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v25
+        with:
+          globs: '**/*.md'
+
+  corpus:
+    name: Corpus manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - name: Recompute public-domain status
+        run: python3 tools/check_corpus.py
+
+  no-book-text:
+    name: No book text committed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fail on EPUB/TXT payloads
+        run: |
+          set -euo pipefail
+          hits=$(git ls-files | grep -Ei '\.(epub|mobi|azw3|txt|pdf)$' | grep -v '^corpora/manifest.json' || true)
+          if [ -n "$hits" ]; then
+            echo "Book payloads must never be committed:"; echo "$hits"; exit 1
+          fi
+          echo "no book payloads tracked"
