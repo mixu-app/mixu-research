@@ -172,7 +172,7 @@
       "published": 1926,
       "language": "en",
       "source": "gutenberg",
-      "gutenberg_id": 0,
+      "gutenberg_id": 69087,
       "role": "narration trick; the hard case for spoiler logic"
     },
     {
@@ -183,7 +183,7 @@
       "published": 1923,
       "language": "en",
       "source": "gutenberg",
-      "gutenberg_id": 0,
+      "gutenberg_id": 58866,
       "role": "false solution then correction"
     },
     {
@@ -194,7 +194,7 @@
       "published": 1923,
       "language": "en",
       "source": "gutenberg",
-      "gutenberg_id": 0,
+      "gutenberg_id": 58820,
       "role": "Wimsey debut; documentary evidence"
     },
     {
@@ -209,15 +209,15 @@
       "role": "thief as protagonist; identity play"
     },
     {
-      "id": "freeman-red-thumb",
-      "author": "R. Austin Freeman",
-      "death": 1943,
-      "title": "The Red Thumb Mark",
-      "published": 1907,
+      "id": "leblanc-crystal-stopper",
+      "author": "Maurice Leblanc",
+      "death": 1941,
+      "title": "The Crystal Stopper",
+      "published": 1912,
       "language": "en",
       "source": "gutenberg",
-      "gutenberg_id": 0,
-      "role": "inverted scientific detection"
+      "gutenberg_id": 1563,
+      "role": "concealed MacGuffin; multi-faction pursuit"
     },
     {
       "id": "green-leavenworth",
@@ -238,8 +238,140 @@
       "published": 1886,
       "language": "en",
       "source": "gutenberg",
-      "gutenberg_id": 2625,
+      "gutenberg_id": 4223,
       "role": "best-selling mystery; urban detail"
+    },
+    {
+      "id": "doyle-adventures",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Adventures of Sherlock Holmes",
+      "published": 1892,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 1661,
+      "role": "canonical short mystery anthology; clue-to-reveal arcs"
+    },
+    {
+      "id": "doyle-memoirs",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Memoirs of Sherlock Holmes",
+      "published": 1894,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 834,
+      "role": "adversarial mastermind arc; Silver Blaze deduction"
+    },
+    {
+      "id": "doyle-valley-of-fear",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "The Valley of Fear",
+      "published": 1915,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 3289,
+      "role": "bifurcated timeline; cipher and identity inversion"
+    },
+    {
+      "id": "doyle-his-last-bow",
+      "author": "Arthur Conan Doyle",
+      "death": 1930,
+      "title": "His Last Bow",
+      "published": 1917,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 2350,
+      "role": "late-period deduction; espionage and persona shifts"
+    },
+    {
+      "id": "christie-secret-adversary",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Secret Adversary",
+      "published": 1922,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 1155,
+      "role": "hidden conspirator identity held until final chapters"
+    },
+    {
+      "id": "christie-poirot-investigates",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "Poirot Investigates",
+      "published": 1924,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 61262,
+      "role": "compact armchair and parlor deductions"
+    },
+    {
+      "id": "christie-man-in-brown-suit",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Man in the Brown Suit",
+      "published": 1924,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 61168,
+      "role": "alternating diary narrator and alias network"
+    },
+    {
+      "id": "christie-big-four",
+      "author": "Agatha Christie",
+      "death": 1976,
+      "title": "The Big Four",
+      "published": 1927,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 70114,
+      "role": "episodic linked conspiracy; staged death twist"
+    },
+    {
+      "id": "chesterton-wisdom",
+      "author": "G.K. Chesterton",
+      "death": 1936,
+      "title": "The Wisdom of Father Brown",
+      "published": 1914,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 223,
+      "role": "paradox-driven alibi refutation"
+    },
+    {
+      "id": "milne-red-house",
+      "author": "A.A. Milne",
+      "death": 1956,
+      "title": "The Red House Mystery",
+      "published": 1922,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 1872,
+      "role": "country-house locked-study puzzle; twin/brother deception"
+    },
+    {
+      "id": "rinehart-circular-staircase",
+      "author": "Mary Roberts Rinehart",
+      "death": 1958,
+      "title": "The Circular Staircase",
+      "published": 1908,
+      "language": "en",
+      "source": "gutenberg",
+      "gutenberg_id": 434,
+      "role": "first-person retrospective narrator; architectural clues"
+    },
+    {
+      "id": "anon-digongan-zh",
+      "author": "Anonymous (Qing Dynasty)",
+      "death": 1800,
+      "title": "Di Gong An (Celebrated Cases of Judge Dee)",
+      "published": 1800,
+      "language": "zh-Hans",
+      "source": "gutenberg",
+      "gutenberg_id": 27686,
+      "role": "classical Chinese gong'an magistrate detection; multi-case testimony"
     }
   ]
 }
