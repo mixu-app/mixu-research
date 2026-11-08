@@ -34,7 +34,7 @@ directory without an entry, or an entry without a directory, is a defect.
 
 | Experiment | Question | Status |
 |---|---|---|
-| _(none yet)_ | | |
+| [spoiler-decisions](spoiler-decisions/protocol.md) | Does a calibrated compact decision model (`jev-decision-1.13` at $\tau^* = 0.72$, alone or with selective uncertainty escalation) behind Mixu's deterministic horizon filter improve epistemic Macro-$F_1$ by $\ge +0.040$ over deterministic rules while keeping post-filter $\text{SLR} = 0.000$ and pre-filter $\text{SLR} \le 0.005$? | Completed (`Adopt Arm C / Arm D`, run `sd-20261108-01`) |
 
 The first three experiments queued by the product backlog are the spoiler-decision
 comparison (A/B/C/D), the extraction model pool benchmark, and typed extraction versus
