@@ -41,6 +41,10 @@ def main() -> int:
             continue
         url = f"https://www.gutenberg.org/cache/epub/{gid}/pg{gid}.epub"
         target = CACHE / f"{w['id']}.epub"
+        if target.exists() and target.stat().st_size > 0 and not (args.list or args.dry_run):
+            print(f"cached {w['id']} ({target.stat().st_size} bytes)")
+            fetched += 1
+            continue
         print(f"{'would fetch' if (args.list or args.dry_run) else 'fetching'} {w['id']} <- {url}")
         if args.list or args.dry_run:
             continue
