@@ -8,6 +8,12 @@ Each paper gets a directory: `papers/ours/<slug>/`.
 | `artifacts.md` | which experiments and datasets it rests on, with links into `experiments/` |
 | `review.md` | reviewer comments and how each was answered (kept after publication) |
 
+## Index
+
+| Paper | Title | Status | Target Venue | Primary Artifacts |
+|---|---|---|---|---|
+| [progress-aware-narrative-kg](progress-aware-narrative-kg/paper.md) | *Progress-Aware Narrative Knowledge Engineering: Epistemic Horizon Filtering for Mystery Fiction* | `draft` | ACL / EMNLP | [artifacts.md](progress-aware-narrative-kg/artifacts.md), [review.md](progress-aware-narrative-kg/review.md), [spoiler-decisions](../../experiments/spoiler-decisions/results.md), [extraction-model-pool](../../experiments/extraction-model-pool/results.md) |
+
 ## Rules
 
 1. Status is one of `idea`, `draft`, `submitted`, `under-review`, `published`, `abandoned`.

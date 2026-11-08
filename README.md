@@ -62,4 +62,4 @@ run.sh        一条命令重跑（可选，但强烈建议）
 
 ## 状态
 
-初始化：目录、语料清单（20 部奠基作品）、校验与抓取脚本、门槛检查。文献笔记与实验记录待补。
+已完成初始化与首轮研究基线：语料清单（20 部奠基作品）、校验与抓取脚本、4 篇核心文献笔记（`papers/literature/`）、2 组可复现实验报告（`spoiler-decisions` 与 `extraction-model-pool`）以及首篇论文草稿（`papers/ours/progress-aware-narrative-kg/`）。

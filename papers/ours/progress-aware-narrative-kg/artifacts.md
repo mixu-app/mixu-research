@@ -1,0 +1,29 @@
+# Artifact Inventory: Progress-Aware Narrative Knowledge Engineering
+
+This file maps every dataset, protocol, empirical table, literature citation, and reproduction script supporting [paper.md](paper.md).
+
+## 1. Corpus Metadata and Rights Verification
+
+| Artifact | Path | Version / As-of | Role in Paper | Verification Command |
+|---|---|---|---|---|
+| Public-Domain Corpus Manifest | [../../corpora/manifest.json](../../corpora/manifest.json) | `schema_version: 1`, `as_of: 2026-11-08` | Metadata catalogue for 20 reference mystery works; defines the 5 core evaluation classics (`poe-rue-morgue`, `leroux-yellow-room`, `doyle-study-in-scarlet`, `christie-styles`, `christie-ackroyd`). | `just corpus` (`python3 tools/check_corpus.py`) |
+| Rights Arithmetic Gate | [../../tools/check_corpus.py](../../tools/check_corpus.py) | `2026-11-08` | Recomputes US (published $\le 1930$), CN ($\text{death} + 50 + 1$), and EU ($\text{death} + 70 + 1$) public-domain eligibility from raw dates. | `python3 tools/check_corpus.py` |
+| On-Demand Corpus Fetcher | [../../tools/fetch_corpus.py](../../tools/fetch_corpus.py) | `2026-11-08` | Downloads US public-domain EPUBs into Git-ignored `corpora/cache/` without redistributing book text. | `just fetch --list` |
+| Synthetic Control Corpus | `mixu-fixtures` (`fixtures-zh-pavilion`, `fixtures-en-clockwork`, `fixtures-ja-snow-inn`) | `v0.1.0` (CC0-1.0) | Unseen multilingual mystery stories controlling for `R-01` pretraining memorization and testing `zh-Hans` / `ja` syntax. | `./experiments/spoiler-decisions/run.sh` |
+
+## 2. Experiments and Quantitative Claims Traceability
+
+| Paper Claim / Section | Experiment Directory | Protocol & Data Spec | Results Report | Executable Reproduction Script |
+|---|---|---|---|---|
+| **Claim 1** (Abstract, §2.1): Post-filter $\text{SLR} = 0.000$, Pre-filter $\text{SLR} = 0.003$, Epistemic Macro-$F_1 = 0.858$ (Arm C, $\tau^* = 0.72$) and $0.889$ (Arm D), $\text{ECE}_{10} = 0.031$ | `experiments/spoiler-decisions/` | [protocol.md](../../experiments/spoiler-decisions/protocol.md), [data.md](../../experiments/spoiler-decisions/data.md) | [results.md](../../experiments/spoiler-decisions/results.md) (Run `sd-20261108-01`, $N = 1{,}200$: $480$ Dev / $720$ Test) | [run.sh](../../experiments/spoiler-decisions/run.sh) (`./experiments/spoiler-decisions/run.sh`) |
+| **Claim 2** (Abstract, §2.2): Chapter-chunked extraction ($0.824\text{–}0.841$ Edge $F_1$, $\$0.44\text{–}\$0.46/\text{novel}$) vs $128\text{k}$ single-pass ($-0.194$ mid-book Edge $F_1$, $14.8\%$ ungrounded spans, $\$0.96/\text{novel}$) | `experiments/extraction-model-pool/` | [protocol.md](../../experiments/extraction-model-pool/protocol.md), [data.md](../../experiments/extraction-model-pool/data.md) | [results.md](../../experiments/extraction-model-pool/results.md) (Run `emp-20261108-01`, $W = 150$ chapter windows, $1{,}354$ gold edges) | [run.sh](../../experiments/extraction-model-pool/run.sh) (`./experiments/extraction-model-pool/run.sh`) |
+| **Claim 3** (Abstract, §2.1, §3): `R-01` famous-book vs unseen-fixture leakage audit ($6.9\%$ vs $0.8\%$ in Arm B; $0.003$ in Arm C) and `R-03` Chinese `1.13` vs `1.14` regression ($0.851$ vs $0.787$ Macro-$F_1$) | `experiments/spoiler-decisions/` & `experiments/extraction-model-pool/` | [spoiler-decisions/data.md](../../experiments/spoiler-decisions/data.md), [extraction-model-pool/data.md](../../experiments/extraction-model-pool/data.md) | [spoiler-decisions/results.md](../../experiments/spoiler-decisions/results.md), [extraction-model-pool/results.md](../../experiments/extraction-model-pool/results.md) | `./experiments/spoiler-decisions/run.sh` & `./experiments/extraction-model-pool/run.sh` |
+
+## 3. Literature Notes Cited in §3 (Related Work)
+
+| Cited Work | Literature Note in Repository | Key Disagreement or Extension in Our Paper |
+|---|---|---|
+| Boyd et al. (CHI 2023) | [boyd-2023-spoiler-aware-reading-interfaces.md](../../papers/literature/boyd-2023-spoiler-aware-reading-interfaces.md) | Replaces manual progress-tuple curation with automated chapter extraction + verbatim span verification + deterministic projection $P(G, h)$ while preserving $\text{SLR} = 0.000$. |
+| Jev et al. (EMNLP 2025) | [jev-2025-threshold-transfer.md](../../papers/literature/jev-2025-threshold-transfer.md) | Shows that phenomenon-stratified in-domain calibration ($\tau^* = 0.72$, $T = 1.18$) transfers across unseen mysteries without unstable per-chapter dynamic threshold shifting. |
+| Chen et al. (ACL Findings 2025) | [chen-2025-chinese-decision-benchmark.md](../../papers/literature/chen-2025-chinese-decision-benchmark.md) | Resolves classical Chinese negation and zero-anaphora indirect speech via pinned `jev-decision-1.13` + uncertainty escalation to `deepseek-v3-0324` rather than full continual pretraining. |
+| Liu et al. (TACL 2024) | [liu-2024-long-context-extraction-decay.md](../../papers/literature/liu-2024-long-context-extraction-decay.md) | Quantifies how $128\text{k}$ single-pass extraction induces both mid-book recall collapse ($-34.6\%$) and $2.18\times$ retry cost inflation in structured narrative KG construction. |
