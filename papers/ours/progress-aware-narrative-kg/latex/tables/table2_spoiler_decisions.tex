@@ -1,0 +1,22 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}llccccccccc@{}}
+\toprule
+\textbf{Arm} & \textbf{Model / Architecture} & \textbf{Post-SLR} & \textbf{Pre-SLR} & \textbf{FRR} & \textbf{Prec.} & \textbf{Rec.} & \textbf{Macro-$F_1$} & \textbf{$\Delta F_1$} & \textbf{$\text{ECE}_{10}$} & \textbf{$P_{95}$ / Cost ($1\text{k}$)} \\
+\midrule
+\textbf{Arm A} & \texttt{rules-v1.0} (Floor) & \textbf{0.000} & 0.000 ($0/720$) & 0.068 & 0.764 & 0.721 & 0.742 & 0.000 & 0.112 & $9\text{ ms}$ / $\$0.00$ \\
+\textbf{Arm B} & Rules + \texttt{qwen2.5-72b} JSON & \textbf{0.000} & 0.039 ($28/720$) & 0.024 & 0.871 & 0.865 & 0.868 & $+0.126$ & 0.078 & $1{,}890\text{ ms}$ / $\$1.42$ \\
+\textbf{Arm C} & Rules + \texttt{jev-decision-1.13} ($\tau^*=0.72$) & \textbf{0.000} & \textbf{0.003} ($2/720$) & 0.031 & 0.869 & 0.847 & \textbf{0.858} & \textbf{$+0.116$} & \textbf{0.031} & \textbf{$142\text{ ms}$} / \textbf{$\$0.09$} \\
+\textbf{Arm D} & Arm C + Escalation ($p \in [0.45, 0.72)$) & \textbf{0.000} & \textbf{0.004} ($3/720$) & \textbf{0.021} & \textbf{0.894} & \textbf{0.884} & \textbf{0.889} & \textbf{$+0.147$} & \textbf{0.024} & \textbf{$485\text{ ms}$} / \textbf{$\$0.34$} \\
+\midrule
+\multicolumn{11}{@{}l}{\textit{Sub-corpus \& phenomenon disaggregation (Held-out Test $N = 720$; Chinese regression slice $N = 240$):}} \\
+\multicolumn{11}{@{}l}{Famous Public Domain ($n=360$): Arm B Pre-SLR $= 0.069$ ($6.9\%$), Macro-$F_1 = 0.873$; Arm C Pre-SLR $= 0.003$, Macro-$F_1 = 0.854$; Arm D Macro-$F_1 = 0.886$.} \\
+\multicolumn{11}{@{}l}{Unseen Synthetic \texttt{mixu-fixtures@v0.1.0} ($n=360$): Arm B Pre-SLR $= 0.008$ ($0.8\%$), Macro-$F_1 = 0.863$; Arm C Pre-SLR $= 0.003$, Macro-$F_1 = 0.862$; Arm D Macro-$F_1 = 0.892$.} \\
+\multicolumn{11}{@{}l}{Chinese \texttt{zh-Hans} Point-Release Audit (\texttt{R-03}, $N=240$): \texttt{jev-decision-1.13} Macro-$F_1 = 0.851$ (polarity flip $6.3\%$) vs.\ \texttt{1.14} Macro-$F_1 = 0.787$ ($\Delta = -0.064$, flip $18.8\%$).} \\
+\bottomrule
+\end{tabular}
+\caption{Spoiler-decision benchmark results on the held-out test split (Run \texttt{sd-20261108-01}, $N = 720$ queries; calibrated on $N = 480$ Dev queries where $\tau_0 = 0.58 \to \tau^* = 0.72$ at $T = 1.18$). Deterministic projection guarantees post-filter $\text{SLR} = 0.000$ across all arms.}
+\label{tab:spoiler_decisions}
+\end{table*}

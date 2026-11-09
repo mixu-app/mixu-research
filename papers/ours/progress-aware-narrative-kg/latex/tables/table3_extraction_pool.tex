@@ -1,0 +1,22 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}llcccccccc@{}}
+\toprule
+\textbf{Arm} & \textbf{Model ID (Strategy)} & \textbf{1st-Pass Acc.} & \textbf{Tries} & \textbf{Ent.\ $B^3$ $F_1$} & \textbf{Edge $F_1$} & \textbf{Mid-Book $F_1$} & \textbf{Not-Substr.} & \textbf{Horiz.\ Viol.} & \textbf{Cost / Novel} \\
+\midrule
+\textbf{Arm E0} & \texttt{regex-coref-floor-v1} ($4\text{--}8\text{k}$) & $100.0\%$ & 1.00 & 0.642 & 0.518 & 0.504 & $0.0\%$ & $0.0\%$ & $\$0.00$ \\
+\textbf{Arm E1} & \texttt{qwen2.5-14b-instruct} ($4\text{--}8\text{k}$) & $74.0\%$ & 1.39 & 0.798 & 0.734 & 0.721 & $14.7\%$ (win) & $1.8\%$ & $\$0.16$ \\
+\textbf{Arm E2} & \texttt{qwen2.5-72b-instruct} ($4\text{--}8\text{k}$) & \textbf{$92.0\%$} & \textbf{1.09} & \textbf{0.884} & \textbf{0.824} & \textbf{0.812} & \textbf{$3.1\%$ (span)} & $0.9\%$ & \textbf{$\$0.44$} \\
+\textbf{Arm E3} & \texttt{deepseek-v3-0324} ($4\text{--}8\text{k}$) & \textbf{$93.3\%$} & \textbf{1.07} & \textbf{0.896} & \textbf{0.841} & \textbf{0.833} & \textbf{$2.5\%$ (span)} & \textbf{$0.6\%$} & \textbf{$\$0.46$} \\
+\textbf{Arm E4} & \texttt{qwen2.5-72b-128k} (Single-pass) & $46.7\%$ & 1.88 & 0.791 & 0.689 & 0.618 & $14.8\%$ (span) & $6.4\%$ & $\$0.96$ ($2.18\times$) \\
+\midrule
+\multicolumn{10}{@{}l}{\textit{Language-stratified Edge Macro-$F_1$ and live 30-edition Project Gutenberg corpus validation:}} \\
+\multicolumn{10}{@{}l}{Language slices: \texttt{en} ($W=130$): E2 $= 0.827$, E3 $= 0.839$, E4 $= 0.692$; \texttt{zh-Hans} ($W=10$): E2 $= 0.816$, E3 $= 0.854$, E4 $= 0.674$; \texttt{ja} ($W=10$): E2 $= 0.793$, E3 $= 0.854$, E4 $= 0.665$.} \\
+\multicolumn{10}{@{}l}{Live 30-Book Gutenberg Validation (\texttt{deepseek-v4.1-flash-1017}): $30$ editions ($32$ works), $14{,}175{,}323$ chars, $150/150$ ($100.00\%$) locator round-trip, $105/105$ calls, $0$ post-validator violations.} \\
+\bottomrule
+\end{tabular}
+\caption{Extraction model-pool benchmark results across $W = 150$ chapter windows ($1{,}354$ gold edges, Run \texttt{emp-20261108-01}). Retry-adjusted cost per 24-chapter novel accounts for up to $K_{\max} = 3$ validation retries when \texttt{SCHEMA\_INVALID}, \texttt{EVIDENCE\_NOT\_SUBSTRING}, or \texttt{HORIZON\_VIOLATION} triggers. All accepted outputs achieve $0.0\%$ post-validator \texttt{HORIZON\_VIOLATION}.}
+\label{tab:extraction_pool}
+\end{table*}

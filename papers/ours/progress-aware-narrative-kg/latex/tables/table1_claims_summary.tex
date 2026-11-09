@@ -1,0 +1,27 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}p{0.24\textwidth}p{0.16\textwidth}p{0.34\textwidth}p{0.19\textwidth}@{}}
+\toprule
+\textbf{Empirical Claim} & \textbf{Experiment Run} & \textbf{Core Quantitative Result} & \textbf{Verification} \\
+\midrule
+\textbf{Claim 1:} Calibrated compact decision model behind deterministic projection achieves $\text{SLR} = 0.000$ and $\Delta F_1 = +0.116$ ($+0.147$ with escalation) &
+Run \texttt{sd-20261108-01} ($N = 720$ held-out test queries) &
+Post-filter $\text{SLR} = 0.000$; Pre-filter $\text{SLR} = 0.003$ (Arm~C) vs.\ $0.039$ (Arm~B); Macro-$F_1 = 0.858$ (Arm~C, $\$0.09/1\text{k}$) and $0.889$ (Arm~D, $\$0.34/1\text{k}$) vs.\ $0.742$ (Arm~A); $\text{ECE}_{10} = 0.031$ (Arm~C) and $0.024$ (Arm~D) &
+\texttt{spoiler-decisions/run.sh} \\
+\addlinespace
+\textbf{Claim 2:} Chapter-chunked extraction ($4\text{k--}8\text{k}$) outperforms whole-book $128\text{k}$ single-pass by $+0.194$ mid-book Edge $F_1$ at $46\%$ of the cost &
+Run \texttt{emp-20261108-01} ($W = 150$ windows, $1{,}354$ gold edges) &
+Mid-book Edge $F_1 = 0.812$ (Arm~E2) / $0.833$ (Arm~E3) vs.\ $0.618$ (Arm~E4 $128\text{k}$); \texttt{EVIDENCE\_NOT\_SUBSTRING} $= 3.1\%$ vs.\ $14.8\%$; Novel cost $= \$0.44\text{--}\$0.46$ vs.\ $\$0.96$ ($2.18\times$) &
+\texttt{extraction-model-pool/run.sh} \\
+\addlinespace
+\textbf{Claim 3:} Span-grounded decision classification resists \texttt{R-01} famous-plot memorization and \texttt{R-03} Chinese \texttt{1.14} regression &
+Runs \texttt{sd-20261108-01} \& \texttt{emp-20261108-01} &
+Arm~B pre-filter $\text{SLR}$ spikes $8.6\times$ on famous books ($6.9\%$ vs.\ $0.8\%$), while Arm~C holds at $0.003$ and achieves Macro-$F_1 = 0.862$ on unseen fixtures ($0.854$ famous); \texttt{1.13} beats \texttt{1.14} by $+0.064$ $F_1$ on \texttt{zh-Hans} ($0.851$ vs.\ $0.787$) &
+\texttt{spoiler-decisions/run.sh} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of empirical claims, experimental runs, core quantitative findings, and one-command reproduction scripts.}
+\label{tab:claims_summary}
+\end{table*}
