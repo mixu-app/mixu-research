@@ -1,6 +1,17 @@
 # Artifact Inventory: Progress-Aware Narrative Knowledge Engineering
 
-This file maps every dataset, protocol, empirical table, literature citation, and reproduction script supporting [paper.md](paper.md).
+This file maps every dataset, protocol, empirical table, literature citation, LaTeX source file, and reproduction script supporting [paper.md](paper.md) and its camera-ready LaTeX manuscript ([latex/main.tex](latex/main.tex)).
+
+## 0. Camera-Ready LaTeX Manuscript Package (`latex/`)
+
+| Artifact | Path | Role in Paper | Verification Command |
+|---|---|---|---|
+| Main LaTeX Manuscript | [latex/main.tex](latex/main.tex) | Two-column ACL/EMNLP camera-ready manuscript containing formal definitions ($G=(V,A,E,T)$, four-tier epistemic lattice, deterministic projection $P(G,h)$), Claims 1–3, related work disagreements, limitations, and data availability statement. | `just paper` (`python3 tools/check_paper_consistency.py`) |
+| BibTeX Bibliography | [latex/references.bib](latex/references.bib) | Complete BibTeX references covering Boyd et al. (2023), Jev et al. (2025), Chen et al. (2025), Liu et al. (2024), W3C PROV-O, ISO/IEC 5392:2024, and canonical narrative KG benchmarks. | `just paper` |
+| Claims Summary Table (`booktabs`) | [latex/tables/table1_claims_summary.tex](latex/tables/table1_claims_summary.tex) | Modular LaTeX table (`\input{tables/table1_claims_summary}`) mapping Claims 1–3 to experiment runs and reproduction scripts. | `just paper` |
+| Spoiler-Decision Results Table (`booktabs`) | [latex/tables/table2_spoiler_decisions.tex](latex/tables/table2_spoiler_decisions.tex) | Modular LaTeX table (`\input{tables/table2_spoiler_decisions}`) for Run `sd-20261108-01` ($N=720$ held-out test queries + `R-01` / `R-03` disaggregations). | `just paper` |
+| Extraction Model-Pool Table (`booktabs`) | [latex/tables/table3_extraction_pool.tex](latex/tables/table3_extraction_pool.tex) | Modular LaTeX table (`\input{tables/table3_extraction_pool}`) for Run `emp-20261108-01` ($W=150$ chapter windows + 30-book Gutenberg validation). | `just paper` |
+| Cross-Artifact Consistency Gate | [../../tools/check_paper_consistency.py](../../tools/check_paper_consistency.py) | Verifies balanced braces/environments, table inclusions, bibliography citations, and exact metric parity across `paper.md`, `latex/`, and `experiments/*/results.md`. | `just check` |
 
 ## 1. Corpus Metadata and Rights Verification
 
