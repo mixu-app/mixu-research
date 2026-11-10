@@ -41,3 +41,20 @@ To isolate container engineering from semantic graph reasoning, we track four st
 
 - **Dev calibration split ($40\%$, $N_{\text{dev}} = 552$):** 27 logical works stratified across all 6 categories (`SH-NT-01..05`, `SH-TL-01..02`, `SH-MM-01..07`, `SH-KY-01..03`, `SH-AM-01..03`, `SH-EP-01..07`) plus Dev episodes of `sunflower-persona-trick` and `labyrinth-manuscript-loop`. Used once to tune the `jev-1.14` `score` encyclopedic salience threshold ($\theta_{\text{salience}}^* = 0.64$) and verify the `jev-hybrid-1.13+1.14` routing table.
 - **Held-out test split ($60\%$, $N_{\text{test}} = 828$):** Remaining 42 logical works plus held-out test episodes of `sunflower-persona-trick` and `labyrinth-manuscript-loop`.
+
+## Live OpenRouter provider verification slice (`Run sh-20261110-live-or`)
+
+To verify end-to-end provider behavior, real token billing, served snapshot versions, and exact character-offset substring grounding against live production endpoints (`https://openrouter.ai/api/v1/chat/completions` and `https://openrouter.ai/api/alpha/decisions`), we sampled 8 representative spine segments spanning all 6 anonymized Shin-Honkaku structural strata (`SH-NT-03`, `SH-NT-10`, `SH-TL-05`, `SH-MM-09`, `SH-KY-07`, `SH-AM-07`, `SH-EP-11`, `SH-EP-12`) alongside the 2 CC0 synthetic fixtures (`sunflower-persona-trick`, `labyrinth-manuscript-loop`) and 4 architectural floorplan `box` probes:
+
+| Work / Fixture ID | Structural Category | Segment Ordinal | Normalized Chars | Extraction Model (`/api/v1/chat/completions`) | Decision Models (`/api/alpha/decisions`) |
+|---|---|---|---|---|---|
+| `SH-NT-03` (`book-8727ba33`) | `SH-NT` (Narrative Tricks) | `238` | `178` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-NT-10` | `SH-NT` (Narrative Tricks) | `285` | `163` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-TL-05` | `SH-TL` (Time-Loop / Sci-Fi) | `220` | `175` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-MM-09` | `SH-MM` (Meta / Mansion) | `233` | `230` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-KY-07` | `SH-KY` (Encyclopedic / Folklore) | `58` | `292` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-AM-07` | `SH-AM` (Anti-Mystery Multi-Solution) | `679` | `174` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-EP-11` | `SH-EP` (Episodic / Omnibus) | `1954` | `181` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `SH-EP-12` | `SH-EP` (Episodic / Omnibus) | `691` | `173` | `deepseek/deepseek-v4.1-flash-1017` | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `sunflower-persona-trick` | CC0 Fixture (`mixu-fixtures`) | `1` | `412` | — | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
+| `labyrinth-manuscript-loop` | CC0 Fixture (`mixu-fixtures`) | `1` | `389` | — | `typesafe/jev-1.14-20261014` & `typesafe/jev-1.13-20260917` |
