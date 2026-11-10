@@ -107,3 +107,61 @@ To verify end-to-end EPUB parsing, offset-preserving normalization, `Locator` ro
 | `leblanc-lupin` | *Arsène Lupin* (1907) | `en` | `4013` | `236,189` | `5` | `3,942` | `3 / 3` | `6` | `6` | `0` | `4` | `2832.9` |
 | `anon-digongan-zh` | *Di Gong An / 狄公案* (1800) | `zh-Hans` | `27686` | `227,014` | `10` | `6,366` | `3 / 3` | `3` | `4` | `0` | `1` | `1789.8` |
 | **Total (`30` Editions / `32` Works)** | — | — | — | **`14,175,323`** | **`665`** | **`241,171`** | **`105 / 105` (`100%`)** | **`165`** | **`171`** | **`68`** | **`60`** | **`2166.3`** |
+
+## Step-by-Step Temporal Graph Construction, Worked Examples, and 1M-Context Cost Optimization (`2026-11-11`)
+
+### 1. How the Progress-Aware Temporal Knowledge Graph Grows Chapter by Chapter
+
+Unlike a static, timeless knowledge graph that overwrites node attributes or merges aliases globally, Mixu stores a book's narrative graph as an **append-only, chapter-indexed temporal event log** $G = (V, A, E, T)$. The graph is never destructively mutated when later chapters reveal new facts; instead, every node, alias link, relational assertion, and epistemic transition carries its disclosure chapter index $r \in \{0..K-1\}$, and `TemporalProjectionEngine.project(pack, horizon)` deterministically filters $G$ to the reader's current reading horizon $h$:
+
+1. **New Entity Discovery (`firstSeenChapterIndex`):** When a character, persona, location, or physical clue first appears in chapter $r$, a node $v \in V$ is appended with `firstSeenChapterIndex = r`. If the reader is at chapter $h < r$, $v \notin V_h$ (the node is completely invisible).
+2. **Delayed Alias & Persona Resolution (`IdentityLink` at `revealChapterIndex`):** If a mysterious figure (e.g., `"灰衣跛足人"`) appears in Chapter 1 (`r = 0`) and is unmasked as `"沈怀舟"` in Chapter 3 (`r = 2`), both surface personas remain separate nodes in $V$ for $h \in \{0, 1\}$, and are linked only when $h \ge r_{\text{reveal}} = 2$.
+3. **Append-Only Epistemic State Transitions (`OBSERVED`, `CLAIMED`, `CORROBORATED`, `CONTRADICTED`, `INFERRED`):** A suspect's alibi claimed in Chapter 1 (`chapterIndex = 0`, `status = CLAIMED`) remains `CLAIMED` while the reader is in Chapter 1. When a physical clue in Chapter 2 (`chapterIndex = 1`) disproves that alibi, a new assertion/transition record anchored at `chapterIndex = 1` with `status = CONTRADICTED` is appended. Scrolling the horizon slider back from Chapter 2 to Chapter 1 immediately restores the `CLAIMED` view without any spoiler leakage.
+
+#### Worked Example 1: Progressive 3-Chapter Mystery (*The Clocktower Fall / 钟楼坠落事件*)
+
+| Reading Horizon $h$ | Narrative Disclosure in Chapter $h$ | Newly Appended Delta $\Delta G_h$ | Reader-Visible Projected Graph $P(G, h)$ |
+|---|---|---|---|
+| **Chapter 1 (`h = 0`)** | 22:00 钟楼发现馆长尸体(`OBSERVED`)；管家顾言声称 21:30–22:00 在书房整理账目(`CLAIMED`)；窗台发现半枚带泥脚印(`OBSERVED`)。 | $+V_0$: `馆长`, `顾言`, `钟楼`, `书房`, `带泥脚印` (`firstSeen=0`)<br>$+E_0$: `(顾言, 声称在场, 书房, CLAIMED, ch=0)`, `(钟楼, 发现物证, 带泥脚印, OBSERVED, ch=0)` | **5 nodes, 2 edges.** 顾言's alibi badge displays `[CLM]`; the culprit and the stopped pocket watch in Chapter 2 are completely absent (`SLR = 0.000`). |
+| **Chapter 2 (`h = 1`)** | 侦探林澈在钟楼齿轮间搜出停在 21:42 的怀表(`OBSERVED`)，怀表内侧刻有顾言缩写，直接推翻顾言 21:30–22:00 一直在书房的证词(`CONTRADICTED`)。 | $+V_1$: `林澈`, `停在21:42的怀表` (`firstSeen=1`)<br>$+E_1$: `(林澈, 搜出物证, 停在21:42的怀表, OBSERVED, ch=1)`, `(停在21:42的怀表, 推翻不在场证明, 书房, CONTRADICTED, ch=1)` | **7 nodes, 4 edges.** 顾言's alibi is now visibly challenged by `[⚔ CONTRADICTED]` edge from `停在21:42的怀表`, while Chapter 3's accomplice identity remains hidden. |
+| **Chapter 3 (`h = 2`)** | 林澈结合带泥脚印与怀表齿轮油渍，推理出顾言在 21:42 推下馆长(`INFERRED`)，并揭露“灰衣园丁”实为馆长失踪多年的弟弟沈怀舟(`CORROBORATED` / `SAME_PERSON_AS`)。 | $+V_2$: `沈怀舟` (`firstSeen=2`)<br>$+A_2$: `IdentityLink(灰衣园丁 == 沈怀舟, revealCh=2)`<br>$+E_2$: `(顾言, 推下致死, 馆长, INFERRED, ch=2)` | **Full 8-node, 5-edge graph** with resolved persona link and final `[INF]` deductive chain. |
+
+### 2. Cost-Optimal Temporal Graph Architecture Under 1M-Context `83.3:1` Asymmetric Pricing
+
+With `deepseek/deepseek-v4.1-flash-1017` supporting a **`1,048,576`-token (`1M`) context window** (`384k+` effective novel input capacity) and `943,718` max completion tokens, almost any short story, novella, or full-length mystery novel (`100k–250k` tokens) can fit inside the model's input window. However, OpenRouter's live token pricing exhibits an extreme **`83.3:1` output-to-input cost asymmetry**:
+
+- **Prompt (Input) Price:** **`$0.006 / 1M` tokens** (`$0.005 / 1M` with prompt cache read) — feeding an entire `100,000`-token (`~160,000`-char) novel as input costs only **`$0.0006` (`0.06` cents)**.
+- **Completion (Output) Price:** **`$0.50 / 1M` tokens** — every `1,000` generated output tokens cost **`$0.0005`**, which is **`83.3x` more expensive per token** than input.
+
+Consequently, **minimizing redundant JSON output tokens while preserving strict chapter-level temporal coordinates `chapterIndex`** is the primary mathematical lever for cost optimization:
+
+$$\text{Total Cost} = C_{\text{in}} \cdot N_{\text{in}} + C_{\text{out}} \cdot N_{\text{out}}, \quad \text{where } \frac{C_{\text{out}}}{C_{\text{in}}} = \frac{\$0.50}{\$0.006} = 83.33$$
+
+| Architectural Strategy (`100k`-Token / `24`-Chapter Novel) | Input Tokens ($N_{\text{in}}$) | Output Tokens ($N_{\text{out}}$) | Input Cost | Output Cost | **Total Cost / Novel** | Temporal & Quality Verdict |
+|---|---|---|---|---|---|---|
+| **Strategy 1: Naive Cumulative Snapshot Re-Emission** (re-emitting full $G_{\le k}$ at each chapter $k=1..24$) | `240,000` (ch text + growing graph) | `~36,000` ($O(K^2)$ duplicate JSON nodes/edges) | `$0.0014` | **`$0.0180`** (`93%` of cost) | `$0.0194` (`~¥0.14`) | **Reject:** $O(K^2)$ output token explosion wastes `10x` completion budget re-printing old chapters' nodes. |
+| **Strategy 2: Unstructured Whole-Book Single Dump** (no chapter delimiters, single timeless output) | `100,000` | `~2,000` | `$0.0006` | `$0.0010` | `$0.0016` (`~¥0.011`) | **Reject:** Loses chapter progression (`HORIZON_VIOLATION = 6.4%`) and suffers mid-book attention decay (`-0.194` $F_1$). |
+| **Strategy 3A: Chapter-Delimited Temporal Delta Stream** (**Mixu Full-Context Batch Mode**, $\le 80$ chapters / $\le 180\text{k}$ chars) | `100,000` (`[Chapter c \| index=c]` delimited) | **`~2,200`** ($O(\|V\|+\|E\|+\|T\|)$ deduplicated delta stream) | `$0.0006` | **`$0.0011`** | **`$0.0017` (`~¥0.012`)** | **Adopt (Initial Book Import & Short Stories):** Each entity emitted once at `firstSeenChapterIndex`; each edge/transition tagged with disclosure `chapterIndex`. **`11.4x` cheaper** than Strategy 1. |
+| **Strategy 3B: Incremental Chapter Delta + Compact Horizon Registry $\mathcal{R}_h$** (**Mixu Live Reading Extension**) | `~4,200 / ch` (`~3.5k` ch text + $\le 700$-tok ID registry $\mathcal{R}_{h-1}$) | **`~220 / ch`** (only new $\Delta G_h$ nodes & transitions) | `$0.000025 / ch` | **`$0.00011 / ch`** | **`$0.000135 / ch`** (`$0.0032` for 24 ch) | **Adopt (On-Demand Chapter Horizon Advance):** Highest mid-book recall (`0.833` Edge $F_1$) with zero duplicate output tokens. |
+
+### 3. Live Production Verification After Lifting Legacy `take(16)` / `take(400)` Truncation (`2026-11-11`)
+
+Prior to `CTX-0012` / `CTX-0036`, the client (`BookGraphPackLoader.kt`) and server (`OpenRouterGatewayClient.kt`) enforced a legacy prototype cap of `chapters.take(16)` and `excerpt.take(400)` (`400` characters per chapter). For a single-chapter short story (`chapters.size == 1`, `2,000–15,000` characters) or a long chapter where key physical clues appear after character `400`, `80%–95%` of the narrative was truncated before reaching the LLM.
+
+We lifted these limits in both `mixu-client` and `mixu-server` (`PR #19` & `PR #46`, deployed live to `https://api.mixuread.com/v1/ai/graph/extract`):
+
+- **Chapter Capacity:** Raised from `16` to **`80` chapters** per extraction request.
+- **Per-Chapter & Total Character Budget:** Raised from `400` chars/chapter (`6,400` chars total) to **`48,000` chars/chapter** and **`160,000–180,000` chars total** (with stratified `Head (45%) + Middle (30%) + Tail (25%)` sampling only if an individual chapter exceeds `48,000` chars).
+- **Completion Budget:** Raised `maxTokens` from `1,400` to **`2,800` tokens** (`45,000 ms` read timeout) with explicit instructions to emit a deduplicated temporal delta stream (`firstSeenChapterIndex` + per-assertion `chapterIndex` and epistemic status transitions).
+
+#### Worked Example 2: Live Single-Chapter Short-Story Extraction (*The Red Brick Manor Locked-Room Poisoning / 红砖馆密室投毒事件*, `2,352` Chars)
+
+We tested the live production endpoint `POST https://api.mixuread.com/v1/ai/graph/extract` with a `2,352`-character single-chapter mystery short story (`chapters.size = 1`, `chapterIndex = 0`) where the crime discovery occurs in characters `0..450`, the suspects' alibis occur in characters `451..1,200`, and the decisive forensic clues (`定时发声磁带机`, `怀表链金粉`, `氰化物安瓿瓶残片`) and final deduction occur in characters `1,201..2,352` (completely invisible under the old `take(400)` cap):
+
+- **Live Execution Telemetry:** Completed in **`5.46 s`** (`offline_fallback: false`), extracting **`16` entities** (`PERSON`, `LOCATION`, `CLUE`) and **`17` grounded assertions** (`0` self-loops, `0` schema errors) at a billed cost of **`~$0.0009` (`¥0.0065`)**.
+- **Full Epistemic Progression Captured Within a Single Short Story:**
+  - `OBSERVED` (Crime Scene & Late-Text Forensic Clues): `陆沉舟 --[死于]--> 红砖馆三楼书房`, `书房门窗 --[反锁于]--> 红砖馆三楼书房`, `林澈 --[搜出物证]--> 氰化物安瓿瓶残片` (char `1,420`), `林澈 --[发现物证]--> 怀表链金粉` (char `1,580`), `林澈 --[搜出物证]--> 定时发声磁带机` (char `1,790`).
+  - `CLAIMED` (Suspect Testimony): `周牧 --[声称在场]--> 地下酒窖` (`"周牧声称自己在21:15至21:50之间一直在地下酒窖清点年份红酒"`), `韩芸 --[听见]--> 21:45敲击木桶声`, `苏晚 --[声称返回]--> 二楼画室`.
+  - `CORROBORATED` (Physical Verification): `定时发声磁带机 --[伪造]--> 21:45敲击木桶声` (`"磁带恰好在21:45自动播放敲击木桶的录音"`), `怀表链金粉 --[证实到访]--> 通风管道检修口`.
+  - `CONTRADICTED` (Alibi Refutation): `定时发声磁带机 --[推翻不在场证明]--> 地下酒窖` (`"周牧声称21:45在酒窖敲桶的不在场证明被定时磁带机彻底推翻"`).
+  - `INFERRED` (Final Deductive Chain at Char `2,150+`): `周牧 --[投毒杀害]--> 陆沉舟` (`"林澈推理出周牧利用通风管道投入氰化物安瓿瓶并用磁带机伪造不在场证明"`).
