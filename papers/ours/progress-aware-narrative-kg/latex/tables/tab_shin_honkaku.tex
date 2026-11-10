@@ -1,0 +1,22 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}llccccccccc@{}}
+\toprule
+\textbf{Arm} & \textbf{Coordinate \& Router} & \textbf{Post-SLR} & \textbf{PFIMR} & \textbf{CCR} & \textbf{Id.\ $F_1$} & \textbf{Trans.\ $F_1$} & \textbf{Layer $F_1$} & \textbf{Noise Supp.} & \textbf{Box IoU} & \textbf{Verdict} \\
+\midrule
+\textbf{Arm SH0} & Flat $(t_{\text{story}}, r)$ + Global Reg. & \textbf{0.000} & $31.4\%$ & $42.8\%$ & 0.584 & 0.612 & 0.668 & $28.4\%$ & $0.0\%$ & Reject \\
+\textbf{Arm SH1} & 5D Coord + Standalone \texttt{jev-1.13} & \textbf{0.000} & $2.8\%$ & \textbf{$0.0\%$} & 0.864 & 0.871 & 0.854 & $76.5\%$ & $0.0\%$ & Revisit \\
+\textbf{Arm SH2} & 5D Coord + Standalone \texttt{jev-1.14} & \textbf{0.000} & \textbf{$0.0\%$} & \textbf{$0.0\%$} & \textbf{0.914} & 0.882 & 0.861 & \textbf{$94.2\%$} & \textbf{$88.5\%$} & Revisit \\
+\textbf{Arm SH3} & 5D Coord + \textbf{\texttt{jev-hybrid-1.13+1.14}} & \textbf{0.000} & \textbf{$0.0\%$} & \textbf{$0.0\%$} & \textbf{0.914} & \textbf{0.896} & \textbf{0.908} & \textbf{$94.2\%$} & \textbf{$88.5\%$} & \textbf{Adopt} \\
+\midrule
+\multicolumn{11}{@{}l}{\textit{Container pathology \& structural sub-slice verification across 69 anonymized logical works (50 EPUB containers):}} \\
+\multicolumn{11}{@{}l}{Narrative Tricks (\texttt{SH-NT-01..12} + \texttt{sunflower-persona-trick}): \texttt{PERSONA} + \texttt{IdentityLink} + \texttt{jev-1.14} \texttt{choice} cuts PFIMR $31.4\% \to 0.0\%$ (Id.\ $F_1 = 0.914$).} \\
+\multicolumn{11}{@{}l}{Time-Loop \& Multi-Solution (\texttt{SH-TL-01..05}, \texttt{SH-AM-01..08}, \texttt{labyrinth-manuscript-loop}): 5D coordinate cuts CCR $42.8\% \to 0.0\%$ (Trans.\ $F_1 = 0.896$, $\Delta F_1 = +0.284$).} \\
+\multicolumn{11}{@{}l}{Omnibus \& Hypertext (\texttt{SH-MM}, \texttt{SH-EP}): 3 omnibuses ($588, 316, 54$ spines) $\to 22$ novels ($100\%$ precision); 308-spine hypertext recall $0.142 \to 0.879$.} \\
+\bottomrule
+\end{tabular}
+\caption{Shin-Honkaku adversarial narrative structures benchmark on the held-out test split (Run \texttt{sh-20261110-01}, $N = 828$ queries across 69 anonymized logical works \texttt{SH-NT}/\texttt{TL}/\texttt{MM}/\texttt{KY}/\texttt{AM}/\texttt{EP} and CC0 fixtures \texttt{sunflower-persona-trick}, \texttt{labyrinth-manuscript-loop}).}
+\label{tab:shin_honkaku}
+\end{table*}

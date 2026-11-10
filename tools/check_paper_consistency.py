@@ -19,10 +19,12 @@ MAIN_TEX = LATEX_DIR / "main.tex"
 BIB_FILE = LATEX_DIR / "references.bib"
 SPOILER_RESULTS = ROOT / "experiments" / "spoiler-decisions" / "results.md"
 EXTRACTION_RESULTS = ROOT / "experiments" / "extraction-model-pool" / "results.md"
+SHIN_HONKAKU_RESULTS = ROOT / "experiments" / "shin-honkaku-structures" / "results.md"
 
 SPOILER_METRICS = ("0.000", "0.858", "0.889", "0.742", "0.031", "0.024")
 EXTRACTION_METRICS = ("0.812", "0.833", "0.618")
-ALL_KEY_METRICS = SPOILER_METRICS + EXTRACTION_METRICS
+SHIN_HONKAKU_METRICS = ("0.914", "0.896", "0.908")
+ALL_KEY_METRICS = SPOILER_METRICS + EXTRACTION_METRICS + SHIN_HONKAKU_METRICS
 
 REQUIRED_BIB_KEYS = (
     "boyd2023spoiler",
@@ -97,6 +99,7 @@ def main() -> int:
         BIB_FILE,
         SPOILER_RESULTS,
         EXTRACTION_RESULTS,
+        SHIN_HONKAKU_RESULTS,
     ):
         if not required_path.is_file():
             problems.append(f"missing required file: {required_path.relative_to(ROOT)}")
@@ -132,6 +135,7 @@ def main() -> int:
     paper_md_text = PAPER_MD.read_text(encoding="utf-8")
     spoiler_text = SPOILER_RESULTS.read_text(encoding="utf-8")
     extraction_text = EXTRACTION_RESULTS.read_text(encoding="utf-8")
+    shin_honkaku_text = SHIN_HONKAKU_RESULTS.read_text(encoding="utf-8")
 
     # Verify required bibliography keys exist and are cited
     for key in REQUIRED_BIB_KEYS:
@@ -159,6 +163,12 @@ def main() -> int:
         if metric not in extraction_text:
             problems.append(
                 f"experiments/extraction-model-pool/results.md: missing metric '{metric}'"
+            )
+
+    for metric in SHIN_HONKAKU_METRICS:
+        if metric not in shin_honkaku_text:
+            problems.append(
+                f"experiments/shin-honkaku-structures/results.md: missing metric '{metric}'"
             )
 
     # Ensure no binary .pdf artifacts are tracked or left inside latex/

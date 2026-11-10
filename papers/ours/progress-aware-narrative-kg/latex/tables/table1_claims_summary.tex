@@ -20,6 +20,11 @@ Mid-book Edge $F_1 = 0.812$ (Arm~E2) / $0.833$ (Arm~E3) vs.\ $0.618$ (Arm~E4 $12
 Runs \texttt{sd-20261108-01} \& \texttt{emp-20261108-01} &
 Arm~B pre-filter $\text{SLR}$ spikes $8.6\times$ on famous books ($6.9\%$ vs.\ $0.8\%$), while Arm~C holds at $0.003$ and achieves Macro-$F_1 = 0.862$ on unseen fixtures ($0.854$ famous); \texttt{1.13} beats \texttt{1.14} by $+0.064$ $F_1$ on \texttt{zh-Hans} ($0.851$ vs.\ $0.787$) &
 \texttt{spoiler-decisions/run.sh} \\
+\addlinespace
+\textbf{Claim 4:} 5D Multi-Frame Coordinate and \texttt{jev-hybrid-1.13+1.14} router eliminate persona/loop collisions across 69 Shin-Honkaku works &
+Run \texttt{sh-20261110-01} ($N = 828$ test queries, 69 works) &
+PFIMR $31.4\% \to 0.0\%$ (Id.\ Macro-$F_1 = 0.914$); CCR $42.8\% \to 0.0\%$ (Multi-Solution Trans.\ $F_1 = 0.896$, $\Delta F_1 = +0.284$); Hybrid Epistemic/Layer $F_1 = 0.908$ ($94.2\%$ noise supp., $88.5\%$ \texttt{box} IoU); 308-spine recall $0.142 \to 0.879$ &
+\texttt{shin-honkaku-structures/run.sh} \\
 \bottomrule
 \end{tabular}
 \caption{Summary of empirical claims, experimental runs, core quantitative findings, and one-command reproduction scripts.}
