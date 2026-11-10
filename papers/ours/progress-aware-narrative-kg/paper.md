@@ -66,6 +66,22 @@ $$T_h(e) = \{\tau \in T(e) \mid r_{\text{trans}}(\tau) \le h \land \text{valid\_
 
 **Horizon Safety Invariant:** Because $P(G, h)$ admits an entity, alias merge, edge, or epistemic transition if and only if its disclosure locus satisfies $r \le h$ and its character offset span is a verified verbatim substring of chapter $r$, **no upstream classifier error or LLM hallucination can leak an item anchored at $r > h$**, guaranteeing post-filter $\text{SLR} = 0.000$ across all model arms.
 
+### 1.4 Progressive Temporal Construction and Cost-Optimal Delta Streaming Under 1M-Context Asymmetric Pricing
+
+A central systems question arises with modern $1\text{M}$-token context models such as `deepseek/deepseek-v4.1-flash-1017` (`1,048,576` max context tokens, `943,718` max completion tokens): **if an entire novel fits inside a single prompt, how should a time-indexed narrative knowledge graph be constructed to maximize accuracy and minimize cost?**
+
+Live OpenRouter pricing reveals an **`83.3:1` output-to-input price asymmetry** (`$0.006 / 1\text{M}` prompt tokens vs `$0.50 / 1\text{M}` completion tokens; `$0.005 / 1\text{M}` cached input). Reading a `100,000`-token (`~160,000`-character) mystery novel costs only `$0.0006` in input tokens, whereas completion tokens dominate total expenditure:
+
+$$\text{Cost}(G) = C_{\text{in}} \cdot N_{\text{in}} + C_{\text{out}} \cdot N_{\text{out}}, \quad \frac{C_{\text{out}}}{C_{\text{in}}} = 83.33$$
+
+Consequently, naive temporal extraction—where the model is called $K$ times and re-emits the cumulative snapshot $G_{\le k}$ at each chapter $k \in \{1..K\}$—incurs $O(K^2)$ completion token growth (`~36,000` output tokens or `$0.0194` per 24-chapter novel). Conversely, dumping an un-delimited novel into a single pass without chapter horizon indexing (Arm E4) collapses mid-book recall (`-0.194` Edge $F_1$) and introduces `6.4%` cross-chapter `HORIZON_VIOLATION` edges.
+
+Mixu resolves this trade-off via a **Two-Mode Temporal Delta Architecture** ([../../experiments/extraction-model-pool/results.md](../../experiments/extraction-model-pool/results.md)):
+
+1. **Chapter-Delimited Temporal Delta Stream (Full-Context Batch Mode for Short Stories & Novels $\le 80$ Chapters / $\le 180\text{k}$ Chars):** The extractor ingests chapter-delimited prose (`[Chapter c | index=c]`) up to `180,000` characters (`48,000` chars per chapter) in a single or macro-batched call (`$0.0006` input cost for `100k` tokens), but is constrained to output a **deduplicated temporal delta stream** ($O(|V| + |E| + |T|) \approx 1{,}800\text{–}2{,}800$ tokens, `$0.0009–$0.0014` output cost). Each entity is emitted once at its `firstSeenChapterIndex`, and each relational assertion or epistemic status transition (`OBSERVED` $\to$ `CLAIMED` $\to$ `CORROBORATED` / `CONTRADICTED` / `INFERRED`) is tagged with its exact disclosure `chapterIndex`. Total extraction cost for a full novel drops to **`$0.0017` (`~¥0.012`)**—an **`11.4x` cost reduction** over cumulative re-emission.
+2. **Incremental Chapter Delta with Compact Horizon Registry $\mathcal{R}_{h-1}$ (Live Reading Mode):** When advancing incrementally from chapter $h-1 \to h$ on very long serial novels, the prompt supplies only a compact entity/claim ID registry $\mathcal{R}_{h-1}$ ($\le 700$ tokens: `[id, canonical_name, type, aliases]`) plus Chapter $h$ text (`~3.5k` tokens), emitting solely the new chapter delta $\Delta G_h$ (`~220` output tokens, **`$0.000135` per chapter**).
+3. **Live Verification on Un-Truncated Single-Chapter Short Fiction:** Removing legacy prototype caps (`take(16)` chapters / `take(400)` chars) and evaluating live on `https://api.mixuread.com/v1/ai/graph/extract` with the `2,352`-character single-chapter mystery "The Red Brick Manor Locked-Room Poisoning" (`红砖馆密室投毒事件`, where key forensic clues appear after char `1,400`) extracted **`16` entities** and **`17` assertions** across all 5 epistemic states (`OBSERVED`, `CLAIMED`, `CORROBORATED`, `CONTRADICTED`, `INFERRED`) in **`5.46 s`** at **`~$0.0009`**, successfully capturing the late-chapter tape-recorder alibi refutation (`定时发声磁带机 --[推翻不在场证明]--> 地下酒窖 [CONTRADICTED]`) that `400`-char truncation previously missed.
+
 ## 2. Empirical Claims and Experimental Verification
 
 Every number reported in this paper is reproduced by committed scripts in `experiments/` and traced below.

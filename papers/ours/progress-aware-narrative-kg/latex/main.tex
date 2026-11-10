@@ -95,6 +95,18 @@ T_h(e) &= \{\tau \in T(e) \mid r_{\text{trans}}(\tau) \le h \nonumber\\
 
 \paragraph{Horizon Safety Invariant.} Because $P(G, h)$ admits an entity, alias merge, edge, or epistemic transition if and only if its disclosure locus satisfies $r \le h$ and its character offset span is a verified verbatim substring of chapter $r$, \textbf{no upstream classifier error or LLM hallucination can leak an item anchored at $r > h$}, guaranteeing post-filter $\text{SLR} = 0.000$ across all model arms.
 
+\subsection{Progressive Temporal Construction and Cost-Optimal Delta Streaming Under 1M-Context Asymmetric Pricing}
+\label{sec:temporal_cost_design}
+
+Modern long-context foundation models such as \texttt{deepseek-v4.1-flash-1017} ($1{,}048{,}576$-token context window, $943{,}718$ max completion tokens) can ingest an entire short story or full-length novel in a single prompt, but exhibit an \textbf{$83.3:1$ output-to-input token price asymmetry} ($\$0.006 / 1\text{M}$ prompt tokens vs.\ $\$0.50 / 1\text{M}$ completion tokens; $\$0.005 / 1\text{M}$ cached input). Ingesting a $100{,}000$-token ($\approx 160{,}000$-character) mystery novel costs only $\$0.0006$ on the input side, whereas completion tokens dominate total expenditure:
+\begin{equation}
+\text{Cost}(G) = C_{\text{in}} N_{\text{in}} + C_{\text{out}} N_{\text{out}}, \quad \frac{C_{\text{out}}}{C_{\text{in}}} = 83.33.
+\label{eq:asymmetric_cost}
+\end{equation}
+Naively re-emitting the cumulative graph snapshot $G_{\le k}$ across $K = 24$ chapters incurs $O(K^2)$ completion token growth ($\approx 36{,}000$ output tokens, $\$0.0194$/novel), whereas dumping an un-delimited novel into a single pass without chapter horizon indexing (Arm~E4) collapses mid-book edge recall ($-0.194$ Edge $F_1$) and introduces $6.4\%$ cross-chapter \texttt{HORIZON\_VIOLATION} edges.
+
+We resolve this trade-off with a two-mode \textbf{Temporal Delta Stream} architecture: (1)~In \textbf{Chapter-Delimited Temporal Delta Batch Mode} (for short stories and novels up to $80$ chapters / $180\text{k}$ characters, $48\text{k}$ chars/chapter), the prompt supplies chapter-delimited text (\texttt{[Chapter c | index=c]}) while constraining generation to a deduplicated temporal delta stream of size $O(|V| + |E| + |T|) \approx 1{,}800\text{--}2{,}800$ completion tokens ($\$0.0017$/novel total, an $11.4\times$ reduction over cumulative snapshot re-emission), where each node is emitted once at \texttt{firstSeenChapterIndex} and each assertion or epistemic transition (\texttt{OBSERVED} $\to$ \texttt{CLAIMED} $\to$ \texttt{CORROBORATED}/\texttt{CONTRADICTED}/\texttt{INFERRED}) is tagged with its disclosure \texttt{chapterIndex}. (2)~In \textbf{Incremental Horizon Extension Mode} (when advancing chapter-by-chapter on long serials), the prompt pairs Chapter~$h$ text with a compact Horizon Entity/Assertion Registry $\mathcal{R}_{h-1}$ ($\le 700$ tokens) and emits solely the new chapter delta $\Delta G_h$ ($\approx 220$ output tokens, $\$0.000135$/chapter). Live production verification on \texttt{/v1/ai/graph/extract} after lifting legacy prototype truncation caps (\texttt{take(16)} chapters / \texttt{take(400)} chars $\to 80$ chapters / $180\text{k}$ chars) on a $2{,}352$-character single-chapter locked-room mystery (\textit{The Red Brick Manor Locked-Room Poisoning}, where key forensic clues appear past character $1{,}400$) extracted $16$ entities and $17$ grounded assertions across all five epistemic states in $5.46\text{ s}$ at $\approx \$0.0009$, capturing late-chapter physical alibi refutations (\texttt{CONTRADICTED}) that $400$-character truncation previously discarded.
+
 \input{tables/table1_claims_summary}
 
 \section{Empirical Claims and Experimental Verification}
