@@ -165,3 +165,24 @@ We tested the live production endpoint `POST https://api.mixuread.com/v1/ai/grap
   - `CORROBORATED` (Physical Verification): `定时发声磁带机 --[伪造]--> 21:45敲击木桶声` (`"磁带恰好在21:45自动播放敲击木桶的录音"`), `怀表链金粉 --[证实到访]--> 通风管道检修口`.
   - `CONTRADICTED` (Alibi Refutation): `定时发声磁带机 --[推翻不在场证明]--> 地下酒窖` (`"周牧声称21:45在酒窖敲桶的不在场证明被定时磁带机彻底推翻"`).
   - `INFERRED` (Final Deductive Chain at Char `2,150+`): `周牧 --[投毒杀害]--> 陆沉舟` (`"林澈推理出周牧利用通风管道投入氰化物安瓿瓶并用磁带机伪造不在场证明"`).
+
+### 4. Multi-Scenario Extraction Strategy Selection & Entity-Starvation Guard (`2026-11-11`)
+
+To select the optimal default extraction strategy across diverse book topologies (single-chapter short story `~21k` chars, giant single-spine novella `~84k` chars, 6-chapter locked-room mystery `~93k` chars, 11-chapter multi-witness mystery `~115k` chars, 32-chapter fragmented micro-spine mystery `~108k` chars, and 22-chapter full-length novel `~303k` chars), we benchmarked five extraction strategies on `deepseek/deepseek-v4.1-flash-1017`:
+
+- **`S1-Legacy-400`**: Legacy `take(16)` chapters $\times$ `take(400)` chars (`6.4k` chars max).
+- **`S2-Uncapped-SinglePass`**: Single-pass whole-book input (`175k` chars max, `max_tokens = 2800`) without entity count caps.
+- **`S3-3Window-MultiCall`**: 3 sequential horizon windows with entity registry carryover (`3` API calls).
+- **`S4A-Salience-SinglePass` (**Production Default**)**: Single-pass stratified digest (`96k–120k` total chars, `36k` max/chapter with `40% Head + 35% Mid + 25% Tail`) + **Entity-Starvation Guard** (`14–22` central mystery entities + `24–36` assertions distributed across `EARLY 0..30%`, `MIDDLE 30..70%`, and `LATE 70..100%` chapters, `max_tokens = 3200`).
+- **`S4B-Adaptive-1or2Pass`**: Uses `S4A` (`1` call) for books $\le 100\text{k}$ chars and $\le 12$ chapters, and a **2-Pass Midpoint Horizon Split (`[0..K/2)` + `[K/2..K)`)** with Compact Entity Registry carryover ($\mathcal{R}_{h_{1/2}}$) for longer/fragmented novels (`2` calls).
+
+| Book Topology Scenario | Strategy | API Calls | Core Entities (`\|V\|`) | Grounded Assertions (`\|E\|`) | Mid / Late Ch. Edges | Epistemic States (`of 5`) | Prompt / Comp. Tokens | **Billed Cost (USD)** | Wall Latency |
+|---|---|---|---|---|---|---|---|---|---|
+| **C1: Single-Ch. Short Story** (`1` ch, `21.1k` chars) | `S1` / `S2` / **`S4A`** | `1` / `1` / **`1`** | `5` / `29` / **`16`** | `4` / `20` / **`27`** | `4` / `20` / **`27`** | `2` / `3` / **`4`** | `12.7k` / `2.5k` (`S4A`) | `$0.0002` / `$0.0015` / **`$0.00133`** | `3.9s` / `8.8s` / **`11.4s`** |
+| **C2: Giant 1-Spine Novella** (`1` ch, `84.2k` chars) | `S1` / `S2` / **`S4A`** | `1` / `1` / **`1`** | `8` / `24` / **`18`** | `8` / `22` / **`34`** | `8` / `22` / **`34`** | `1` / `4` / **`4`** | `21.6k` / `3.1k` (`S4A`) | `$0.0004` / `$0.0015` / **`$0.00168`** | `3.2s` / `11.4s` / **`23.0s`** |
+| **C3: 6-Ch. Locked-Room** (`6` ch, `93.5k` chars) | `S1` / `S2` / **`S4A`** | `1` / `1` / **`1`** | `17` / `23` / **`18`** | `9` / `21` / **`31`** | `9+0` / `18+3` / **`20+11`** | `2` / `4` / **`5`** | `40.0k` / `2.9k` (`S4A`) | `$0.0007` / `$0.0017` / **`$0.00170`** | `7.8s` / `11.9s` / **`10.2s`** |
+| **C4: 11-Ch. Multi-Witness** (`11` ch, `115.4k` chars) | `S2` / **`S4A`** / **`S4B`** | `1` / **`1`** / **`2`** | `31` / **`16`** / **`20`** | `24` / **`32`** / **`43`** | `9+4` / **`12+11`** / **`17+10`** | `5` / **`4`** / **`5`** | `51.3k`/`2.8k` (`S4A`) | `$0.0018` / **`$0.00170`** / **`$0.00236`** | `35.0s` / **`10.6s`** / `24.6s` |
+| **C5: 32-Ch. Fragmented** (`32` ch, `107.8k` chars) | `S2` / **`S4A`** / **`S4B`** | `1` / **`1`** / **`2`** | `56` / **`21`** / **`27`** | `18` / **`22`** / **`34`** | `5+0` / **`9+4`** / **`18+8`** | `3` / **`5`** / **`5`** | `48.1k`/`2.7k` (`S4A`) | `$0.0018` / **`$0.00164`** / **`$0.00263`** | `12.8s` / **`8.6s`** / `40.4s` |
+| **C6: 22-Ch. Long Novel** (`22` ch, `303.4k` chars) | `S2` / **`S4A`** / **`S4B`** | `1` / **`1`** / **`2`** | `76` / **`20`** / **`18`** | **`0` (starved)** / **`35`** / **`44`** | `0+0` / **`27+2`** / **`39+0`** | `0` / **`3`** / **`4`** | `47.8k`/`3.1k` (`S4A`) | `$0.0019` / **`$0.00184`** / **`$0.00269`** | `5.9s` / **`14.8s`** / `43.8s` |
+
+**Key Engineering Takeaway (`Entity-Starvation Guard`):** In `C6` (`303k` chars), uncapped `S2` emitted `76` entities first and exhausted `max_tokens` with **`0` assertions**. Enforcing the **`14–22` Core Entity Salience Cap** in `S4A` reserves `>80%` of completion tokens for temporal assertions, yielding **`35` grounded assertions in a single `14.8 s` call at `$0.00184` (`~¥0.013`)**.
