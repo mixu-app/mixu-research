@@ -1,6 +1,6 @@
 # Progress-Aware Narrative Knowledge Engineering: Epistemic Horizon Filtering for Mystery Fiction
 
-- **Status:** `draft` (honest pre-submission draft; not yet submitted or peer-reviewed)
+- **Status:** `draft` (Markdown-first active manuscript; LaTeX generation deferred until empirical iterations finalize)
 - **Authors:** Mixu Research Group
 - **Target venue:** ACL / EMNLP (Track: Information Extraction, Discourse, and Interactive NLP Systems)
 - **Version date:** `2026-11-16`
@@ -122,6 +122,23 @@ To test whether a single frontier reasoning model dominates all roles, we evalua
 1. **Six-Model Shin-Honkaku & S4A Comparison (`sh-20261113-6model`, `emp-20261113-s4a`):** Across six anonymized structural suites (`SH1..SH6`) plus CC0 fixtures (`FX1`, `FX2`), `google/gemini-4-hydrogen` (`LOW` thinking on Vertex AI) achieved the highest mean Shin-Honkaku quality score (`96.92` vs `94.22` for `anthropic/claude-haiku-5.5`, `92.18` for `deepseek/deepseek-v4.1-flash-1017`, `92.00` for `qwen/qwen3.7-flash`, `91.45` for `google/gemini-3.8-flash`, and `91.17` for `z-ai/glm-5.3-flash`), with `0/6` early-spoiler flags and full `5/5` epistemic status coverage on every work (`6/6` vs `3/6` for DeepSeek). Conversely, `deepseek/deepseek-v4.1-flash-1017` achieved `100.0` / `100.0` on CC0 twins (`FX1`/`FX2`), fastest median S4A latency (`13.08 s` vs `34.34 s`), and $24.3\times$ lower S4A extraction cost (`$0.009899` total across `C1..C6` vs `$0.240661` credit-equivalent).
 2. **Reasoning-Effort Calibration and Overthinking Saturation:** Sweeping `gemini-4-hydrogen` thinking levels (`LOW`, `MEDIUM`, `HIGH`, `MAX`) on `SH1` and `SH6` identified `MEDIUM` as the Pareto optimum: it eliminated `SH6`'s residual pre-climax spoiler flag (`92.0 -> 97.0`, `0` flags) and peaked on `SH1` (`94.5`, `16` reasoning edges) in `47.7–53.9 s`, whereas `HIGH`/`MAX` doubled latency (`76.2–100.6 s`) and dipped `SH1` (`91.0–93.5`). Across eight domestic Bailian models ($N = 52$ trilingual queries, `emp-20261112-bailian`), non-thinking `kimi-k3.1-pro` reached `90.4%` accuracy (`47/52`, `1/22` FN) in `10,607 ms`, while `deepseek-v4.1-flash-1017` climbed from `80.8%` (`off`, `2,468 ms`) to `90.4%` (`low`, `100.0%` `ja`, `16,872 ms`) before saturating at `88.5%` under `high`/`max` (`46,419 ms`, `101,457` hidden reasoning tokens).
 3. **Candidate Pool v1 and Compact Router Alternatives:** In `bench-model-pool-20261108-001`, `qwen/qwen-2.5-72b-instruct` achieved `0.9583` relation $F_1$ (`0.9667` entity recall, `$0.001620`/book) whereas `deepseek/deepseek-v3.2` (`0.7000` $F_1$) suffered a double schema failure on `book-03`. Separately, `gemini-decision-1` evaluated `241` routing queries across `14` anonymized scenarios at `743.1 ms` mean latency and `0` output tokens (`$0.001792` paid equiv.; `p = 0.993` on `CONTRADICTED`). Together, these establish an explicit **offline–online specialization**: `google/gemini-4-hydrogen` (`MEDIUM`) leads offline cold-start gold pack generation, whereas `deepseek-v4.1-flash-1017` (`off`/`low`) and typed classifiers (`jev-hybrid-1.13+1.14`, `gemini-decision-1`) lead online interactive serving.
+
+#### Table 4: Multi-Provider Frontier Pool, Thinking-Budget Sweep, and Compact Routers
+
+| Wave / Model (`Config`) | Primary Score / Accuracy | Spoiler Hygiene | `5/5` Epistemic States | Latency | Cost / Equiv. | Role |
+|---|---|---|---|---|---|---|
+| `google/gemini-4-hydrogen` (`Vertex`, `LOW`, `SH1..6`) | **`96.92`** (`FX1/2`: `94.5`/`100.0`) | **`0/6` flags** | **`6/6`** | `33.94 s` | `$0.263577` eq. | **Offline Gold** |
+| `anthropic/claude-haiku-5.5` (`OpenRouter`, `off`) | `94.22` (`FX1/2`: `96.0`/`98.1`) | **`0/6` flags** | `4/6` | `15.05 s` | `$0.109456` | Fallback |
+| **`deepseek/deepseek-v4.1-flash-1017`** (`off`, `S4A`/`SH`) | `92.18` (`FX1/2`: **`100.0`**/**`100.0`**) | `2/6` flags | `3/6` | **`12.55 s`** | **`$0.009899`** (`C1..6`) | **Online Prod.** |
+| `qwen/qwen3.7-flash` (`OpenRouter`, `off`) | `92.00` (`FX1/2`: `83.2`/`81.7`) | `1/6` flags | `5/6` | `35.44 s` | `$0.035519` (`SH`) | Low-cost (`C3` gap) |
+| `google/gemini-3.8-flash` (`Vertex`, `0` budget) | `91.45` (`FX1/2`: `93.5`/`100.0`) | `1/6` flags | `2/6` | `20.18 s` | credit-covered | Superseded |
+| `z-ai/glm-5.3-flash` (`OpenRouter`, `256` budget) | `91.17` (`FX1/2`: `92.0`/`99.0`) | `1/6` flags | `1/6` | `19.02 s` | `$0.039825` | Drops `C4` late |
+| `gemini-4-hydrogen` (`MEDIUM`, `SH1` / `SH6`) | **`94.5`** / **`97.0`** (`HIGH`/`MAX` `91.0–93.5` / `100.0`) | **`0` flags** (`LOW` had `1`) | **`2/2`** | `47.7–53.9 s` | `$0.051–$0.053` | **Pareto Optimum** |
+| `kimi-k3.1-pro` (`Bailian`, `off`, $N=52$) | **`90.4%`** (`47/52`), `92.0%` span | **`1/22` FN** | — | `10,607 ms` | — | Best no-think judge |
+| `deepseek-v4.1-flash-1017` (`off` $\to$ `low` / `max`) | `80.8%` $\to$ **`90.4%`** (`ja 100.0%`) / `88.5%` | `4/22` $\to$ `2/22` / `1/22` | — | `2.47` $\to$ `16.87` / `46.42 s` | `0` / `33k` / `101k` thought | `low` sweet spot |
+| `qwen/qwen-2.5-72b-instruct` (`v1 pool`) | Rel. $F_1 = \mathbf{0.9583}$, Ent. `0.9667` | `100%` schema | — | `298.00 ms` $P_{50}$ | `$0.001620`/book | v1 pool winner |
+| `gpt-4.1-mini` / `gemini-2.5-flash` / `deepseek-v3.2` | Rel. $F_1 = 0.8936$ / `0.8750` / `0.7000` | `100%` / `100%` / `66.7%` | — | `252–325 ms` | `$0.00189–$0.0026` | `v3.2` $2\times$ retry |
+| `gemini-decision-1` (`14` scenarios, `241` dec.) | `alibi` $p=0.993$, `leak` `0.985` | `0` out. tokens | — | **`743.1 ms`**/bk | `$0.001792` total | Compact alt. router |
 
 ## 3. Related Work and Explicit Disagreements
 
