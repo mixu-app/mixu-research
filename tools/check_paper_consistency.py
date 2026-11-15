@@ -26,6 +26,12 @@ EXTRACTION_METRICS = ("0.812", "0.833", "0.618")
 SHIN_HONKAKU_METRICS = ("0.914", "0.896", "0.908", "0.002540", "0.000772", "753.39")
 ALL_KEY_METRICS = SPOILER_METRICS + EXTRACTION_METRICS + SHIN_HONKAKU_METRICS
 
+# Active Markdown-first draft metrics (synced between paper.md and experiments/*/results.md;
+# LaTeX typesetting deferred until all empirical runs stabilize).
+MD_EXTRACTION_METRICS = ("0.9583", "0.001620", "16384")
+MD_SHIN_HONKAKU_METRICS = ("96.92", "94.22", "92.18", "743.1")
+ALL_MD_DRAFT_METRICS = MD_EXTRACTION_METRICS + MD_SHIN_HONKAKU_METRICS
+
 REQUIRED_BIB_KEYS = (
     "boyd2023spoiler",
     "jev2025threshold",
@@ -166,6 +172,22 @@ def main() -> int:
             )
 
     for metric in SHIN_HONKAKU_METRICS:
+        if metric not in shin_honkaku_text:
+            problems.append(
+                f"experiments/shin-honkaku-structures/results.md: missing metric '{metric}'"
+            )
+
+    for metric in ALL_MD_DRAFT_METRICS:
+        if metric not in paper_md_text:
+            problems.append(f"paper.md: missing markdown-draft metric '{metric}'")
+
+    for metric in MD_EXTRACTION_METRICS:
+        if metric not in extraction_text:
+            problems.append(
+                f"experiments/extraction-model-pool/results.md: missing metric '{metric}'"
+            )
+
+    for metric in MD_SHIN_HONKAKU_METRICS:
         if metric not in shin_honkaku_text:
             problems.append(
                 f"experiments/shin-honkaku-structures/results.md: missing metric '{metric}'"
