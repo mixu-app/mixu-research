@@ -22,8 +22,19 @@ EXTRACTION_RESULTS = ROOT / "experiments" / "extraction-model-pool" / "results.m
 SHIN_HONKAKU_RESULTS = ROOT / "experiments" / "shin-honkaku-structures" / "results.md"
 
 SPOILER_METRICS = ("0.000", "0.858", "0.889", "0.742", "0.031", "0.024")
-EXTRACTION_METRICS = ("0.812", "0.833", "0.618")
-SHIN_HONKAKU_METRICS = ("0.914", "0.896", "0.908", "0.002540", "0.000772", "753.39")
+EXTRACTION_METRICS = ("0.812", "0.833", "0.618", "0.9583", "0.001620", "16384")
+SHIN_HONKAKU_METRICS = (
+    "0.914",
+    "0.896",
+    "0.908",
+    "0.002540",
+    "0.000772",
+    "753.39",
+    "96.92",
+    "94.22",
+    "92.18",
+    "743.1",
+)
 ALL_KEY_METRICS = SPOILER_METRICS + EXTRACTION_METRICS + SHIN_HONKAKU_METRICS
 
 REQUIRED_BIB_KEYS = (

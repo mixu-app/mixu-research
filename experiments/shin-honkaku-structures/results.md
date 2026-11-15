@@ -135,3 +135,40 @@ We executed 16 live corpus decision batches (8 pairs comparing `typesafe/jev-1.1
    Both `typesafe/jev-1.14-20261014` (`gen-dec-1794324479-uoMqD3MJ830fkYGHrBVP`) and `typesafe/jev-1.13-20260917` (`gen-dec-1794324480-qXHws2KZq6k1Qnzb9jNt`) correctly classified the opening chapter's embedded story as `diegetic_layer = "INNER_WORK"` (`prob = 0.72` on `1.14`, `prob = 0.66` on `1.13`). However, on `early_spoiler_check` (`noul` evaluated against threshold $\tau^* = 0.72$), `typesafe/jev-1.14-20261014` emitted `noul = 0.72`—triggering a false-positive spoiler block at $\tau^* = 0.72$ on an opening chapter's nested manuscript death—whereas `typesafe/jev-1.13-20260917` emitted `noul = 0.66 < 0.72`, preserving valid opening-horizon visibility. Similarly, on `SH-KY-07` (`gen-dec-1794324446-PZZMkNsVqkDY8j4RahtM`), `jev-1.14`'s `choice` + `score` (`0.57 < \theta^* = 0.64`) cleanly tagged the passage as `FOLKLORE_REFERENCE` (`conf = 1.00`), suppressing encyclopedic noise before case-board projection.
 2. **Architectural Floorplan `box` Grounding (`1.14`-Exclusive Capability):**
    Across all 4 live architectural floorplan `box` probes (`gen-dec-1794324164-i65UBRyt5JoN6oPnmaaZ`, `gen-dec-1794324166-U1LRIQCuEU46YicEXJe0`, `gen-dec-1794324168-rY4UYOJdUfH36mXVE2xy`, `gen-dec-1794324480-oB46qBB9Ct8nbFmmgas3`; input `733–1,039` tokens, `0` output tokens), `typesafe/jev-1.14-20261014` returned structured normalized bounding boxes (`{top: 0.04, bottom: 0.96, left: 0.04, right: 0.96}`, confidence `0.0977–0.2421`) in `666–816 ms` at `$0.000031–$0.000060` per call, whereas `typesafe/jev-1.13-20260917` rejected `box` specifications with `HTTP 400`. This directly confirms the necessity of the **`jev-hybrid-1.13+1.14`** router in production.
+
+## Cross-provider frontier model comparison & thinking-level sweep (`2026-11-13`)
+
+### 4. Six-Model Shin-Honkaku Structural & CC0 Fixture Suite (`Run sh-20261113-6model`)
+
+To measure how frontier 1M-context LLMs handle complex narrative deception (`SH-NT`), time loops (`SH-TL`), folklore noise (`SH-KY`), multi-solution deductions (`SH-AM`), and prophecy structures (`SH-EP`) under a unified $100$-point composite quality rubric (`20` entity salience $12\text{–}24$, `25` assertion volume, `25` early/mid/late coverage, `20` epistemic diversity + reasoning edges, `10` anti-spoiler pre-climax hygiene), we evaluated **six frontier models** on six anonymized Shin-Honkaku suites (`SH1: SH-NT-03`, `SH2: SH-NT-10`, `SH3: SH-TL-05`, `SH4: SH-KY-07`, `SH5: SH-AM-07`, `SH6: SH-EP-12`) and our two CC0 ground-truth synthetic fixtures (`FX1: sunflower-persona-trick`, `FX2: labyrinth-manuscript-loop`):
+
+| Model (`Provider`) | `SH1` (`SH-NT-03`) | `SH2` (`SH-NT-10`) | `SH3` (`SH-TL-05`) | `SH4` (`SH-KY-07`) | `SH5` (`SH-AM-07`) | `SH6` (`SH-EP-12`) | **Mean `SH` Quality** | Early-Spoiler Flags (`SH1..6`) | `5/5` Epistemic States (`SH1..6`) | Median Latency | Total Cost (`SH1..6`) | CC0 `FX1` / `FX2` Quality |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **`google/gemini-4-hydrogen`** (`Vertex AI`, `LOW`) | `92.0` | `96.0` | **`100.0`** | **`99.0`** | **`100.0`** | `94.5` | **`96.92`** | **`0/6`** | **`6/6`** | `33.94 s` | `$0.263577` equiv | `94.5` / **`100.0`** |
+| `anthropic/claude-haiku-5.5` (`OpenRouter`) | `88.6` | `93.0` | `93.6` | `97.0` | `96.1` | `97.0` | `94.22` | **`0/6`** | `4/6` | `15.05 s` | `$0.109456` billed | `96.0` / `98.1` |
+| `deepseek/deepseek-v4.1-flash-1017` (`OpenRouter`) | `87.5` | `86.0` | `95.0` (`1` flag) | `95.5` | `92.1` (`1` flag) | `97.0` | `92.18` | `2/6` | `3/6` | **`12.55 s`** | `$0.057852` billed | **`100.0`** / **`100.0`** |
+| `qwen/qwen3.7-flash` (`OpenRouter`) | **`94.0`** | **`99.0`** | **`100.0`** | `83.0` | `86.5` (`1` flag) | `89.5` | `92.00` | `1/6` | `5/6` | `35.44 s` | **`$0.035519`** billed | `83.2` / `81.7` |
+| `google/gemini-3.8-flash` (`Vertex AI`) | `86.0` | `89.5` | `89.5` (`1` flag) | `94.1` | **`100.0`** | `89.6` | `91.45` | `1/6` | `2/6` | `20.18 s` | credit-covered | `93.5` / **`100.0`** |
+| `z-ai/glm-5.3-flash` (`OpenRouter`) | `89.5` | `87.5` | `93.0` (`1` flag) | `95.5` | `89.0` | `92.5` | `91.17` | `1/6` | `1/6` | `19.02 s` | `$0.039825` billed | `92.0` / `99.0` |
+
+**Interpretation (`Gemini 4 Hydrogen` vs `DeepSeek-v4.1-Flash`):**
+Even at its lowest thinking setting (`LOW`), **`google/gemini-4-hydrogen` achieved the highest mean Shin-Honkaku quality (`96.92` vs `94.22` Claude Haiku 5.5 and `92.18` DeepSeek-v4.1-flash)**, zero early-spoiler flags (`0/6`), and complete `5/5` epistemic status coverage (`CLAIMED`, `CORROBORATED`, `CONTRADICTED`, `INFERRED`, `OBSERVED`) on **every single test volume** (`6/6` vs `3/6` for DeepSeek). Conversely, **`deepseek/deepseek-v4.1-flash-1017`** achieved perfect **`100.0` / `100.0`** on clean CC0 fixtures (`FX1`/`FX2`) with the fastest median latency (`12.55 s`) and `$0.057852` billed spend across all 6 full digests—making `Gemini 4 Hydrogen` optimal for **offline curated/cold-start gold packs** and `DeepSeek-v4.1-Flash` optimal for **online interactive reader indexing**.
+
+### 5. `google/gemini-4-hydrogen` Thinking-Level Sweep (`LOW` / `MEDIUM` / `HIGH` / `MAX`) & `gemini-decision-1` Probe
+
+Evaluating all four Vertex AI `thinkingLevel` modes (`LOW`, `MEDIUM`, `HIGH`, `MAX`) on the hardest narrative-trick (`SH1: SH-NT-03`) and prophecy (`SH6: SH-EP-12`) suites reveals **`MEDIUM` as the reasoning Pareto optimum**:
+
+| Suite | Thinking Level | Entities / Assertions | Epistemic States | Reasoning / Contra / Inf | Early-Spoiler Flags | **Quality Score** | Thought / Answer Tokens | Wall Latency (s) | Equiv. Cost (`$0.50/$3.00` 1M) |
+|---|---|---|---|---|---|---|---|---|---|
+| `SH1` (`SH-NT-03`) | `LOW` | `20` / `30` | `5` | `12` / `1` / `4` | `0` | `92.0` | `2,808` / `2,981` | `36.07` | `$0.045215` |
+| **`SH1` (`SH-NT-03`)** | **`MEDIUM`** | `19` / `31` | **`5`** | **`16` / `4` / `7`** | **`0`** | **`94.5`** | `5,109` / `3,119` | `53.86` | `$0.052531` |
+| `SH1` (`SH-NT-03`) | `HIGH` | `20` / `31` | `5` | `14` / `2` / `4` | `0` | `91.0` | `9,566` / `3,093` | `82.06` | `$0.065824` |
+| `SH1` (`SH-NT-03`) | `MAX` | `21` / `35` | `5` | `14` / `3` / `3` | `0` | `93.5` | `12,277` / `3,593` | `100.57` | `$0.075457` |
+| `SH6` (`SH-EP-12`) | `LOW` | `19` / `29` | `5` | `13` / `1` / `9` | **`1`** (leak risk) | `92.0` | `2,795` / `2,883` | `37.67` | `$0.046232` |
+| **`SH6` (`SH-EP-12`)** | **`MEDIUM`** | `22` / `32` | **`5`** | **`16` / `2` / `11`** | **`0`** (fixed) | **`97.0`** | `4,244` / `3,041` | `47.72` | `$0.051054` |
+| `SH6` (`SH-EP-12`) | `HIGH` | `22` / `33` | `5` | `18` / `3` / `12` | `0` | `100.0` | `8,538` / `3,424` | `76.20` | `$0.065085` |
+| `SH6` (`SH-EP-12`) | `MAX` | `21` / `36` | `5` | `18` / `4` / `8` | `0` | `100.0` | `11,384` / `3,572` | `92.32` | `$0.074067` |
+
+**Why `MEDIUM` is our default offline `Gemini 4 Hydrogen` profile:** Raising thinking from `LOW` to `MEDIUM` resolves the residual pre-climax spoiler flag on `SH6` (`1 -> 0`, lifting score `92.0 -> 97.0`) and maximizes contradicted/inferred reasoning density on `SH1` (`92.0 -> 94.5`, `4` contradictions, `7` inferences) in `47.72–53.86 s`, whereas `HIGH`/`MAX` nearly double latency (`76.20–100.57 s`) and dollar cost (`$0.065–$0.075`) while slightly regressing `SH1` (`91.0` / `93.5`).
+
+**Compact `gemini-decision-1` Online Routing Evaluation:** Alongside `jev-1.13+1.14`, we benchmarked `gemini-decision-1` across **`14` anonymized mystery scenarios** (`17` structured classification queries per book, **`241` total decisions**) plus a 3-question epistemic/spoiler verification probe: mean latency was **`743.1 ms` per scenario batch** across `17,916` input tokens and **`0` billed output tokens** (`$0.001792` paid-tier equivalent), with the epistemic probe resolving `alibi_status = CONTRADICTED` (`p = 0.993`), `spoiler_leak_check_at_ch2 = 0.985`, and `identity_swap_detected = 0.756` in `865.1 ms` (`485` input tokens).

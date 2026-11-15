@@ -186,3 +186,62 @@ To select the optimal default extraction strategy across diverse book topologies
 | **C6: 22-Ch. Long Novel** (`22` ch, `303.4k` chars) | `S2` / **`S4A`** / **`S4B`** | `1` / **`1`** / **`2`** | `76` / **`20`** / **`18`** | **`0` (starved)** / **`35`** / **`44`** | `0+0` / **`27+2`** / **`39+0`** | `0` / **`3`** / **`4`** | `47.8k`/`3.1k` (`S4A`) | `$0.0019` / **`$0.00184`** / **`$0.00269`** | `5.9s` / **`14.8s`** / `43.8s` |
 
 **Key Engineering Takeaway (`Entity-Starvation Guard`):** In `C6` (`303k` chars), uncapped `S2` emitted `76` entities first and exhausted `max_tokens` with **`0` assertions**. Enforcing the **`14–22` Core Entity Salience Cap** in `S4A` reserves `>80%` of completion tokens for temporal assertions, yielding **`35` grounded assertions in a single `14.8 s` call at `$0.00184` (`~¥0.013`)**.
+
+## Multi-provider expansion: candidate pool, domestic 8-model sweep, thinking ablations, and `Gemini 4 Hydrogen` (`2026-11-08` to `2026-11-13`)
+
+Following the baseline `emp-20261108-01` study, we conducted three live evaluation waves across **16 model variants and 4 reasoning budgets** using strictly public-domain works (`corpora/manifest.json`), CC0 synthetic fixtures (`mixu-fixtures@v0.1.0`), and anonymized structural test topologies (`C1..C6`).
+
+### 5. Candidate Pool v1 OpenRouter Benchmark (`Run bench-model-pool-20261108-001`)
+
+To select our first production multi-provider extraction default prior to 1M-context S4A optimization (`prompt-extract-v1.0.0`, `require_parameters=True`, `data_collection='deny'`, max `1` retry on schema failure), we compared four candidates across 3 anonymized test volumes:
+
+| Candidate Arm | Model ID (`openrouter`) | Reasoning | Entity Recall | Relation $F_1$ | Span Acc. | Schema Validity | Accepted Books | Cost / Accepted Graph | $P_{50}$ (ms) | $P_{95}$ (ms) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `cheap-default` | `deepseek/deepseek-v3.2` | `low` | `0.6000` | `0.7000` | `0.6000` | `0.6667` | `2/3` | `$0.001890` (incl. `book-03` 2x fail) | `325.00` | `585.00` |
+| `structured-output-reference` | `openai/gpt-4.1-mini` | `low` | `0.9000` | `0.8936` | **`0.9667`** | **`1.0000`** | `3/3` | `$0.002400` | `268.00` | **`275.00`** |
+| `chinese-language-check` | **`qwen/qwen-2.5-72b-instruct`** | `medium` | **`0.9667`** | **`0.9583`** | **`0.9667`** | **`1.0000`** | **`3/3`** | **`$0.001620`** | `298.00` | `305.00` |
+| `long-context-arm` | `google/gemini-2.5-flash` | `low` | `0.9000` | `0.8750` | `0.9000` | **`1.0000`** | `3/3` | `$0.002600` | **`252.00`** | `493.00` |
+
+**Finding:** `qwen/qwen-2.5-72b-instruct` achieved the highest relation $F_1$ (`0.9583`), entity recall (`0.9667`), and lowest effective cost (`$0.001620`), whereas `deepseek/deepseek-v3.2` failed schema validation twice on a complex alibi-table chunk (`book-03`), turning its raw `$0.001260` nominal rate into `$0.001890` per accepted graph (`$0.000420` wasted per failed attempt).
+
+### 6. Eight Domestic Models and Thinking-Tier Ablation (`Run emp-20261112-bailian`)
+
+Evaluated on Alibaba Cloud Bailian (`enable_thinking=False` unless noted, `temperature=0.0` where supported) across: (1) $N = 52$ stratified trilingual spoiler queries from `mixu-fixtures@v0.1.0/eval/` (`20` `zh-Hans`, `16` `en`, `16` `ja`), (2) `5` CC0 synthetic mysteries (`sunflower-persona-trick`, `labyrinth-manuscript-loop`, `false-witness`, `locked-stair`, `silent-courier`), and (3) `25` verbatim span checks (`26` for `qwen3.5-122b-a10b`) sampled across 5 public-domain works in `corpora/manifest.json` (`anon-digongan-zh`, `christie-ackroyd`, `leroux-yellow-room`, `doyle-study-in-scarlet`, `poe-rue-morgue`):
+
+| Model (`Bailian`) | Spoiler Acc. | Leak FN | `zh-Hans` / `en` / `ja` | Syn. Entity Recall | Contra / Persona | Classic Verbatim Span | Mean Latency (ms) | Prompt / Comp. Tokens |
+|---|---|---|---|---|---|---|---|---|
+| **`kimi-k3.1-pro`** | **`90.4%`** (`47/52`) | **`1/22`** | **`95.0%`** / `87.5%` / **`87.5%`** | `74.3%` | `5/5` / `5/5` | `92.0%` (`23/25`) | `10,607` | `15,814` / `6,221` |
+| **`deepseek-v4.1-flash-1017`** | `84.6%` (`44/52`) | `4/22` | `90.0%` / **`87.5%`** / `75.0%` | **`75.9%`** | `5/5` / `5/5` | `88.0%` (`22/25`) | **`2,563`** | `15,176` / `5,177` |
+| `deepseek-v4-pro-0813` | `84.6%` (`44/52`) | `2/22` | `80.0%` / **`87.5%`** / **`87.5%`** | `73.7%` | `4/5` / `5/5` | **`96.0%`** (`24/25`) | `8,058` | `15,163` / `6,690` |
+| `qwen3.8-max` | `84.6%` (`44/52`) | `4/22` | `90.0%` / `75.0%` / **`87.5%`** | `68.5%` | `5/5` / `5/5` | `84.0%` (`21/25`) | `7,284` | `15,097` / `5,524` |
+| `qwen3.8-flash` | `80.8%` (`42/52`) | `6/22` | `90.0%` / `75.0%` / `75.0%` | `56.3%` | `5/5` / `5/5` | `84.0%` (`21/25`) | `5,564` | `15,097` / `5,242` |
+| `qwen3.7-plus` | `80.8%` (`42/52`) | `5/22` | `85.0%` / `75.0%` / `81.2%` | `69.2%` | `5/5` / `5/5` | `72.0%` (`18/25`) | `8,862` | `15,097` / `5,349` |
+| `qwen3.7-flash` | `78.8%` (`41/52`) | `7/22` | `90.0%` / `75.0%` / `68.8%` | `65.2%` | `5/5` / `5/5` | `84.0%` (`21/25`) | `3,834` | `15,097` / `6,290` |
+| `qwen3.5-122b-a10b` | `76.9%` (`40/52`) | `5/22` | `80.0%` / `68.8%` / `81.2%` | `59.7%` | `5/5` / `4/5` | `76.9%` (`20/26`) | `2,999` | `15,097` / `5,646` |
+
+Sweeping thinking-effort tiers (`off`, `low`, `high`, `max`) on `deepseek-v4.1-flash-1017` over the same benchmark demonstrates **non-monotonic overthinking saturation**:
+
+| Thinking Mode (`deepseek-v4.1-flash-1017`) | Spoiler Acc. | Leak FN | `zh-Hans` / `en` / `ja` | Syn. Entity Recall | Classic Span | Mean Latency (ms) | Reasoning / Answer Tokens | Total Tokens |
+|---|---|---|---|---|---|---|---|---|
+| `off` | `80.8%` (`42/52`) | `4/22` | `80.0%` / **`87.5%`** / `75.0%` | `75.9%` | `92.0%` (`23/25`) | **`2,468`** | `0` / `4,813` | `19,989` |
+| **`low` (Accuracy/Latency Optimum)** | **`90.4%`** (`47/52`) | `2/22` | `90.0%` / `81.2%` / **`100.0%`** | **`77.6%`** | `96.0%` (`24/25`) | `16,872` | `33,061` / `7,090` | `55,652` |
+| `high` | `88.5%` (`46/52`) | `2/22` | `85.0%` / `81.2%` / **`100.0%`** | `74.8%` | `96.0%` (`24/25`) | `26,043` | `55,850` / `7,579` | `78,930` |
+| `max` | `88.5%` (`46/52`) | **`1/22`** | **`95.0%`** / `81.2%` / `87.5%` | **`77.6%`** | **`100.0%`** (`25/25`) | `46,419` | `101,457` / `8,630` | `125,588` |
+
+Enabling `low` thinking lifts spoiler accuracy from `80.8%` to **`90.4%`** (`100.0%` on `ja`) and verbatim span grounding to `96.0%`, matching `kimi-k3.1-pro` at higher entity recall (`77.6%` vs `74.3%`). Escalating further to `high` or `max` adds $2.75\times$ wall latency (`46,419 ms`) and $3.07\times$ hidden reasoning tokens (`101,457`) while slightly regressing aggregate accuracy (`88.5%`).
+
+### 7. Six-Provider Frontier S4A Comparison Including `google/gemini-4-hydrogen` (`Run emp-20261113-s4a`)
+
+We benchmarked six frontier 1M-context models under identical S4A prompts (`96k`-char stratified chapter digest, `14–22` entity salience cap) across six anonymized narrative topologies (`C1` single-ch `~18–21k`, `C2` giant 1-ch `~84k`, `C3` 6-ch locked-room `~83–94k`, `C4` 11-ch multi-witness `~100–115k`, `C5` 32/35-ch fragmented `~97–108k`, `C6` 22/24-ch long novel `~265–303k`):
+
+| Model (`Provider`) | Config / Thinking | Mean Core Entities | Mean Assertions | Mean Epistemic States (`of 5`) | Median Wall Latency | Total Cost across `C1..C6` | Deployment Role |
+|---|---|---|---|---|---|---|---|
+| **`deepseek/deepseek-v4.1-flash-1017`** (`OpenRouter`) | `reasoning=off`, `S4A` | `18.2` | `30.2` | `4.17` | **`13.08 s`** | **`$0.009899`** (`$0.00165/book`) | **Online Production Default** (`24.3x` cheaper than `Gemini 4 Hydrogen`) |
+| **`google/gemini-4-hydrogen`** (`Vertex AI`) | `thinkingLevel=LOW`, `maxOutputTokens=6144` | `19.2` | `27.3` | **`5.00`** (`5/5` on all 6!) | `34.34 s` | `$0.240661` equiv (`$0.0401/book`) | **Offline Cold-Start / Gold Reference Builder** |
+| `anthropic/claude-haiku-5.5` (`OpenRouter`) | `reasoning=off` | `16.7` | `24.5` | `4.83` | `14.93 s` | `$0.052586` (`$0.00876/book`) | Secondary zero-spoiler fallback (`5.3x` cost of DeepSeek) |
+| `google/gemini-3.8-flash` (`Vertex AI`) | `thinkingBudget=0` | `16.7` | `26.3` | `4.50` | `18.88 s` | `$0.194655` equiv | Superseded by `Gemini 4 Hydrogen` on epistemic completeness |
+| `z-ai/glm-5.3-flash` (`OpenRouter`) | `max_tokens=3800` | `21.3` | **`30.3`** | `4.67` | `17.44 s` | `$0.037828` | Drops to `10` assertions (`0` late) on `C4` multi-witness |
+| `qwen/qwen3.7-flash` (`OpenRouter`) | `reasoning=off` | `18.2` | `28.0` | `4.67` | `24.45 s` | `$0.026354` | Drops to `0` late assertions on `C3` locked-room |
+
+**Negative Engineering Finding on Full-Book `google/gemini-4-hydrogen` (`MEDIUM` Thinking, `CTX-0026`):**
+When running windowed full-book extraction (`--window-chars 3500`, OpenAI-compatible Vertex endpoint) with `reasoning_effort="medium"`, hidden reasoning consumed **`3,372–5,945` tokens per window** on top of `~724–968` JSON completion tokens. Consequently, `max_tokens = 4096` failed `53/65` windows (`finish_reason = "length"`). Raising the gateway budget to **`max_tokens = 16384`** eliminated truncation completely across three anonymized long-form volumes (`Vol-A`: `61/65` windows accepted, `4` Vertex `content_filter` crime-scene drops -> `99` entities, `289` assertions, `93` transitions; `Vol-B`: `61/62` windows + `1` `content_filter` -> `104` entities, `295` assertions, `113` transitions; `Vol-C`: **`56/56` (`100%`)** -> `95` entities, `274` assertions, `108` transitions). Note that Vertex safety filters rejected `0%–6.2%` of violent crime windows (`content_filter`), requiring resilient per-window skip-and-log handling in offline builders.

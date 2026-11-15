@@ -1,0 +1,31 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+\textbf{Benchmark Wave} & \textbf{Model / Configuration} & \textbf{Primary Accuracy / $Q$} & \textbf{Spoiler Hygiene} & \textbf{5/5 States} & \textbf{Latency} & \textbf{Cost / Equiv.} & \textbf{Role} \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{Six-Model Shin-Honkaku Structural Suite (\texttt{sh-20261113-6model}, \texttt{SH1..SH6} anonymized + CC0 \texttt{FX1}/\texttt{FX2})}} \\
+& \textbf{\texttt{google/gemini-4-hydrogen}} (\texttt{LOW}) & \textbf{96.92} (CC0 \texttt{94.5/100.0}) & \textbf{0/6 flags} & \textbf{6/6} & $33.94\text{ s}$ & $\$0.263577$ eq. & \textbf{Offline Gold} \\
+& \texttt{anthropic/claude-haiku-5.5} (\texttt{off}) & $94.22$ (CC0 \texttt{96.0/98.1}) & \textbf{0/6 flags} & $4/6$ & $15.05\text{ s}$ & $\$0.109456$ & Fallback \\
+& \textbf{\texttt{deepseek/deepseek-v4.1-flash-1017}} & $92.18$ (CC0 \textbf{100.0/100.0}) & $2/6$ flags & $3/6$ & \textbf{12.55 s} & $\$0.057852$ & \textbf{Online Prod.} \\
+& \texttt{qwen/qwen3.7-flash} (\texttt{off}) & $92.00$ (CC0 \texttt{83.2/81.7}) & $1/6$ flags & $5/6$ & $35.44\text{ s}$ & \textbf{\$0.035519} & Low-cost (\texttt{C3} gap) \\
+& \texttt{google/gemini-3.8-flash} (\texttt{Vertex}) & $91.45$ (CC0 \texttt{93.5/100.0}) & $1/6$ flags & $2/6$ & $20.18\text{ s}$ & credit-covered & Superseded \\
+& \texttt{z-ai/glm-5.3-flash} (\texttt{openrouter}) & $91.17$ (CC0 \texttt{92.0/99.0}) & $1/6$ flags & $1/6$ & $19.02\text{ s}$ & $\$0.039825$ & Drops \texttt{C4} late \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{Gemini-4-Hydrogen Thinking Sweep (\texttt{SH1}/\texttt{SH6}) \& Trilingual Bailian / Thinking Tiers (\texttt{emp-20261112-bailian}, $N=52$)}} \\
+& \textbf{\texttt{gemini-4-hydrogen}} (\texttt{MEDIUM}) & \textbf{94.5} (\texttt{SH1}) / \textbf{97.0} (\texttt{SH6}) & \textbf{0 flags} & \textbf{2/2} & $47.7\text{--}53.9\text{ s}$ & $\$0.051\text{--}\$0.053$ & \textbf{Pareto Optimum} \\
+& \texttt{gemini-4-hydrogen} (\texttt{HIGH}/\texttt{MAX}) & $91.0\text{--}93.5$ (\texttt{SH1}) / $100.0$ (\texttt{SH6}) & \textbf{0 flags} & $2/2$ & $76.2\text{--}100.6\text{ s}$ & $\$0.065\text{--}\$0.075$ & Overthinks \texttt{SH1} \\
+& \texttt{kimi-k3.1-pro} (Bailian, \texttt{off}) & \textbf{90.4\%} ($47/52$), $92.0\%$ span & \textbf{1/22 FN} & --- & $10{,}607\text{ ms}$ & --- & Best no-think judge \\
+& \texttt{deepseek-v4.1-flash-1017} (\texttt{off} $\to$ \texttt{low}) & $80.8\% \to$ \textbf{90.4\%} (\texttt{ja 100\%}) & $4/22 \to 2/22$ & --- & $2{,}468 \to 16{,}872\text{ ms}$ & $33\text{k}$ thought & Sweet spot (\texttt{max} $46.4\text{ s}$) \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{Candidate Pool v1 (\texttt{bench-model-pool-20261108-001}) \& Compact Classifier (\texttt{gemini-decision-1})}} \\
+& \texttt{qwen/qwen-2.5-72b-instruct} (\texttt{med}) & Rel.\ $F_1 = \mathbf{0.9583}$, Ent.\ $0.9667$ & $100\%$ schema & --- & $298.00\text{ ms}$ $P_{50}$ & $\$0.001620$/book & v1 pool winner \\
+& \texttt{deepseek/deepseek-v3.2} / \texttt{gpt-4.1-mini} / \texttt{gem-2.5} & Rel.\ $F_1 = 0.7000 / 0.8936 / 0.8750$ & $66.7\%\text{--}100\%$ & --- & $252\text{--}325\text{ ms}$ & $\$0.00189\text{--}\$0.0026$ & \texttt{v3.2} $2\times$ retry \\
+& \texttt{gemini-decision-1} ($14$ scenarios, $241$ dec.) & \texttt{alibi} $p=0.993$, \texttt{leak} $0.985$ & $0$ out.\ tok. & --- & \textbf{743.1 ms} / bk & $\$0.001792$ total & Compact alt.\ router \\
+\bottomrule
+\end{tabular}
+\caption{Multi-provider frontier extraction, reasoning-budget sweep, Candidate Pool~v1 (\texttt{bench-model-pool-20261108-001}), and compact classifier summary across offline and online tiers.}
+\label{tab:frontier_pool}
+\end{table*}
